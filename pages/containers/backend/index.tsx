@@ -1,67 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
+  ExclamationCircleOutlined
 } from '@ant-design/icons';
-import { Layout, Menu, theme } from 'antd';
+import { Layout, Menu, theme, Table, Tag, Space, Button, Modal } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import InsightsManager from '../../components/backend/insightsManage';
 
-const { Header, Sider, Content } = Layout;
-export const BackendPage: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
+async function getInitialData() {
+  let data = await fetch("/api/insightsList");
+  return data.json();
+}
+
+export const BackendPage = (props: { selectData: string }) => {
+  const { selectData } = props;
+  console.log(selectData)
+
+  const [dataSource, setDataSource] = useState([]);
+  useEffect(() => {
+    switch (selectData) {
+      case '1':
+
+
+        break;
+      case '2':
+        break;
+      case '3':
+        getInitialData().then((res) => {
+          if (res && res?.length > 0) {
+            console.log(res);
+            setDataSource(res);
+          }
+        });
+        break;
+    }
+  }, [selectData]);
+
+
+  if (selectData == '3') return (<InsightsManager setDataSource={setDataSource} dataSource={dataSource} />)
+
   return (
-    <Layout>
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={["1"]}
-          items={[
-            {
-              key: "1",
-              icon: <UserOutlined />,
-              label: "nav 1",
-            },
-            {
-              key: "2",
-              icon: <VideoCameraOutlined />,
-              label: "nav 2",
-            },
-            {
-              key: "3",
-              icon: <UploadOutlined />,
-              label: "nav 3",
-            },
-          ]}
-        />
-      </Sider>
-      <Layout className="site-layout">
-        <Header style={{ padding: 0, background: colorBgContainer }}>
-          {React.createElement(
-            collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
-            {
-              className: "trigger",
-              onClick: () => setCollapsed(!collapsed),
-            }
-          )}
-        </Header>
-        <Content
-          style={{
-            margin: "24px 16px",
-            padding: 24,
-            minHeight: 280,
-            background: colorBgContainer,
-          }}
-        >
-          Content
-        </Content>
-      </Layout>
-    </Layout>
-  );
-};
+    null
+  )
+}

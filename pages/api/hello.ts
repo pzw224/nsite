@@ -17,7 +17,6 @@ export default function handler(
     var dbo = db?.db("runoob");
     let arrs = [
       {
-        id: 1,
         pic: "https://assets.glginsights.com/wp-content/uploads/2022/12/D1_SustainabilityStrategyImplementation_Image-420x420.jpg.webp",
         type: "articles",
         lang:'cn',
@@ -29,7 +28,6 @@ export default function handler(
         ],
       },
       {
-        id: 2,
         pic: "https://assets.glginsights.com/wp-content/uploads/2022/12/D1_OceanSustainability_Image-420x420.jpg.webp",
         type: "articles",
         lang:'cn',
@@ -42,7 +40,6 @@ export default function handler(
         ],
       },
       {
-        id: 3,
         pic: "https://assets.glginsights.com/wp-content/uploads/2022/10/D1_ResponsibleCorporateBrandsESG_Image-420x420.jpg.webp",
         type: "articles",
         lang:'cn',

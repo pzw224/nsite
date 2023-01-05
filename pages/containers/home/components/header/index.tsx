@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 const Header = (props: any) => {
   const { mastheadClass = "" } = props; //masthead--transparent
   return (

@@ -136,7 +136,7 @@ export const InsightsPage: React.FC = () => {
       </div>
       <div className="post-archive-content">
         <div className="post-archive-list">
-          {initialData?.map((data:IinitialData, index) => {
+          {initialData?.map((data: IinitialData, index) => {
             return (
               <div
                 key={data?.title + index}
@@ -166,7 +166,7 @@ export const InsightsPage: React.FC = () => {
                     <div className="insights-list-item-tags">
                       {data?.tags?.map((tag, index) => {
                         return (
-                          <span>
+                          <span key={tag.tag + index}>
                             <a
                               href={`/${data.type}/${tag.filter}`}
                               className="insights-list-item-tag"
