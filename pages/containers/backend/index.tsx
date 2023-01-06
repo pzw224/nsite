@@ -18,7 +18,6 @@ async function getInitialData() {
 
 export const BackendPage = (props: { selectData: string }) => {
   const { selectData } = props;
-  console.log(selectData)
 
   const [dataSource, setDataSource] = useState([]);
   useEffect(() => {

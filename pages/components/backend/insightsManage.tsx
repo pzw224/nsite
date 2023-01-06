@@ -1,19 +1,24 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from 'react';
 import {
     ExclamationCircleOutlined,
     LoadingOutlined,
     PlusOutlined
 } from '@ant-design/icons';
-import { SelectProps, message, Table, Tag, Space, Button, Modal, Row, Col, Form, Select, FormInstance, Input, Upload, UploadProps } from 'antd';
+import {
+    SelectProps, message, Table, Tag, Space, Button, Modal, Row, Col,
+    Form, Select, FormInstance, Input, Upload, UploadProps,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { RcFile, UploadChangeParam, UploadFile } from 'antd/es/upload';
 
-
+import '@wangeditor/editor/dist/css/style.css' // 引入 css
+let Editor: any;
+let Toolbar: any;
 const options: SelectProps['options'] = [{ label: 'CFO', value: 'CFO' },
-{ label: 'Global Economy', value: 'Global Economy' }, { label: 'Network Surveys', value: 'Network Surveys' },
-{ label: 'Environmental Social Governance (ESG)', value: 'Environmental Social Governance (ESG)' },
-{ label: 'Corporate Responsibility', value: 'Corporate Responsibility' }
+{ label: 'Global Economy', value: 'economy' }, { label: 'Network Surveys', value: 'surveys' },
+{ label: 'Environmental Social Governance (ESG)', value: 'esg' },
+{ label: 'Corporate Responsibility', value: 'responsibility' }
 ];
 
 interface DataType {
@@ -30,8 +35,18 @@ async function deleteInsight(id: string) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: id })
     });
-    return data;
+    return data.json();
 }
+
+async function addInsight(body: any) {
+    let data = await fetch('/api/addInsights', {
+        method: 'post',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+    });
+    return data.json();
+}
+
 
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
     const reader = new FileReader();
@@ -54,17 +69,23 @@ const beforeUpload = (file: RcFile) => {
 
 export default function InsightsManager({ dataSource, setDataSource }: any) {
     const [open, setOpen] = useState(false);
-    const [formData, setFormData] = useState({})
+    const [isBrowser, setBrowser] = useState(false);
+    const [formData, setFormData] = useState({ htmlContent: '', pic: '', tags: [] });
+    const [messageApi, contextHolder] = message.useMessage();
 
-    const formRef = React.createRef<FormInstance>();
+
+    const [form] = Form.useForm();
+
     const { Option } = Select;
 
     const showModal = () => {
+        form.resetFields();
+        setFormData({ htmlContent: '', pic: '', tags: [] })
         setOpen(true);
     };
 
     const confirmModal = () => {
-        formRef.current?.submit();
+        form.submit();
     }
 
     const hideModal = () => {
@@ -72,13 +93,21 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
     };
 
     const onFinish = (values: any) => {
-        console.log('Success:', formData);
-
+        addInsight(formData).then((res) => {
+            console.log(JSON.stringify(res));
+            if (res) {
+                setDataSource([{ _id: res.insertedId, ...formData }, ...dataSource]);
+            }
+        });
         setOpen(false);
     };
 
     const onFinishFailed = (errorInfo: any) => {
-        console.log('Failed:', errorInfo);
+        messageApi.open({
+            type: 'error',
+            content: '提交失败',
+        });
+        // console.log('Failed:', errorInfo);
     };
 
     const onGenderChange = (value: string) => {
@@ -115,12 +144,37 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
         }
     }
 
-    const tagChang = (value: []) => {
-        console.log(value)
+    const tagChange = (value: [any]) => {
+        setFormData(Object.assign(formData, { tags: value?.map(tag => { return { tag: tag.label, filter: tag.value } }) }))
     }
 
     const [loading, setLoading] = useState(false);
-    const [imageUrl, setImageUrl] = useState<string>();
+
+
+    const [editor, setEditor]: [any, any] = useState(null)
+
+    // 工具栏配置
+    const toolbarConfig = {}  // TS 语法
+    // 编辑器配置
+    const editorConfig = {    // TS 语法
+        placeholder: '请输入内容...',
+    }
+
+    useEffect(() => {
+        let editorjs = require('@wangeditor/editor-for-react')
+        Editor = editorjs.Editor;
+        Toolbar = editorjs.Toolbar;
+        setBrowser(true);
+    }, [])
+
+    // 及时销毁 editor ，重要！
+    useEffect(() => {
+        return () => {
+            if (editor == null) return
+            editor.destroy()
+            setEditor(null)
+        }
+    }, [editor])
 
     const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
         if (info.file.status === 'uploading') {
@@ -131,7 +185,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
             // Get this url from response in real world.
             getBase64(info.file.originFileObj as RcFile, (url) => {
                 setLoading(false);
-                setImageUrl(url);
+                setFormData(Object.assign(formData, { pic: url?.toString() }))
             });
         }
     };
@@ -160,7 +214,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
             key: 'pic',
             title: '图片',
             dataIndex: 'pic',
-            render: (src: string) => <img src={src} style={{ width: 20, height: 20 }} />,
+            render: (src: string) => src ? <img src={src} style={{ width: 20, height: 20 }} /> : null,
         },
         {
             key: 'typeN',
@@ -179,7 +233,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
             render: (_: any, record: { tags: [{ tag: string, filter: string }] }) => (
                 <>
                     {record?.tags?.map((data) => {
-                        let color = data?.tag.length > 15 ? 'geekblue' : 'green';
+                        let color = data?.tag?.length > 15 ? 'geekblue' : 'green';
                         if (data?.tag === 'CFO') {
                             color = 'volcano';
                         }
@@ -203,7 +257,11 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                             title: 'Confirm',
                             icon: <ExclamationCircleOutlined />,
                             onOk(...args) {
-                                deleteInsight(record._id);
+                                deleteInsight(record._id).then((res) => {
+                                    if (res.data == 'done') {
+                                        setDataSource(dataSource?.filter((x: { _id: any; }) => x._id != record._id));
+                                    }
+                                });
                             },
                             content: '确定删除吗',
                             okText: '确认',
@@ -217,6 +275,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
     if (!dataSource) return null;
     return (
         <>
+            {contextHolder}
             <Row style={{ marginBottom: 16 }}>
                 <Col span={12}>
                     <Button type="primary" onClick={showModal}>
@@ -231,8 +290,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                         cancelText="取消"
                     >
                         <Form
-                            ref={formRef}
-
+                            form={form}
                             name="basic"
                             initialValues={{ remember: true }}
                             onFinish={onFinish}
@@ -240,7 +298,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                             autoComplete="off"
                         >
                             <Form.Item
-                                name="lang" label="语言" rules={[{ required: true }]}
+                                name="lang" label="语言" rules={[{ required: true, message: '必须选择语言' }]}
                             >
                                 <Select
                                     placeholder="Select a option and change input text above"
@@ -250,7 +308,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                                     <Option value="en">英文</Option>
                                 </Select>
                             </Form.Item>
-                            <Form.Item name="type" label="类型" rules={[{ required: true }]}>
+                            <Form.Item name="type" label="类型" rules={[{ required: true, message: '必须选择类型' }]}>
                                 <Select
                                     placeholder="Select a option and change input text above"
                                     onChange={onTypeChange}
@@ -263,14 +321,15 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                                 </Select>
                             </Form.Item>
                             <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题!' }]}>
-                                <Input />
+                                <Input onChange={(title) => { setFormData(Object.assign(formData, { title: title?.target?.value })); }} />
                             </Form.Item>
                             <Form.Item name="tags" label="标签" >
                                 <Select
                                     mode="tags"
                                     style={{ width: '200px' }}
                                     placeholder="Tags Mode"
-                                    onChange={tagChang}
+                                    labelInValue={true}
+                                    onChange={tagChange}
                                     options={options}
                                 />
                             </Form.Item>
@@ -281,13 +340,34 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                                     listType="picture-card"
                                     className="avatar-uploader"
                                     showUploadList={false}
-                                    
+
                                     beforeUpload={beforeUpload}
                                     onChange={handleChange}
                                 >
-                                    {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+                                    {formData?.pic ? <img src={formData?.pic} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
                                 </Upload>
                             </Form.Item>
+                            {isBrowser ?
+                                <Form.Item>
+                                    <Toolbar
+                                        editor={editor}
+                                        defaultConfig={toolbarConfig}
+                                        mode="default"
+                                        style={{ borderBottom: '1px solid #ccc' }}
+                                    />
+                                    <Editor
+                                        defaultConfig={editorConfig}
+                                        value={formData?.htmlContent}
+                                        onCreated={setEditor}
+                                        onChange={(editor: { getHtml: () => any; }) => {
+                                            console.log(editor.getHtml())
+                                            setFormData(Object.assign(formData, { htmlContent: editor.getHtml() }))
+                                        }}
+                                        mode="default"
+                                        style={{ height: '100px', overflowY: 'hidden' }}
+                                    />
+                                </Form.Item>
+                                : null}
                         </Form>
                     </Modal>
                 </Col>

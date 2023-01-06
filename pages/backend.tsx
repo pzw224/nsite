@@ -33,13 +33,6 @@ export default function Backend(props: any) {
   ];
   const [selectData, setSelectData] = useState('1');
   const [collapsed, setCollapsed] = useState(false);
-  const [open, setOpen] = useState(false);
-  const showModal = () => {
-    setOpen(true);
-  };
-  const hideModal = () => {
-    setOpen(false);
-  };
   return (
     <Layout>
       <Sider trigger={null} collapsible collapsed={collapsed}>

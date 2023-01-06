@@ -17,7 +17,6 @@ export default function handler(
         // 返回集合中所有数据
         if (err) throw err;
         res.send(result);
-        console.log(result);
         db?.close();
       });
   });
