@@ -14,11 +14,11 @@ export default function handler(
       if (err) throw err;
       var dbo = db?.db("runoob").collection("site");
       dbo?.insertOne(req.body, function (err: any, data: any) {
-          if (err) throw err;
-          console.log("数据插入成功");
-          db?.close();
-          res.status(200).json(data);
-        });
+        if (err) throw err;
+        console.log("数据插入成功");
+        db?.close();
+        res.status(200).json(data);
+      });
     });
   } else {
     res.status(200).json({ data: "error method" });

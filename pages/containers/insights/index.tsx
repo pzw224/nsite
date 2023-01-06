@@ -16,11 +16,11 @@ interface IinitialData {
 
 export const InsightsPage: React.FC = () => {
   const [selectClass, setSelectClass] = useState("");
-  const [initialData, setInitalData] = useState([]);
+  const [initialData, setInitalData] = useState([] as any);
   useEffect(function () {
     getInitialData().then((res) => {
-      if (res && res?.length > 0) {
-        setInitalData(res);
+      if (res && res?.data.length > 0) {
+        setInitalData(res?.data);
       }
     });
   }, []);
@@ -136,7 +136,7 @@ export const InsightsPage: React.FC = () => {
       </div>
       <div className="post-archive-content">
         <div className="post-archive-list">
-          {initialData?.map((data: IinitialData, index) => {
+          {initialData?.map((data: IinitialData, index: string) => {
             return (
               <div
                 key={data?.title + index}

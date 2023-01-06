@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import {
     SelectProps, message, Table, Tag, Space, Button, Modal, Row, Col,
-    Form, Select, FormInstance, Input, Upload, UploadProps,
+    Form, Select, FormInstance, Input, Upload, UploadProps, Pagination,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { RcFile, UploadChangeParam, UploadFile } from 'antd/es/upload';
@@ -28,6 +28,12 @@ interface DataType {
     title: string;
     tags: string[];
 }
+
+async function getInitialData(query: any) {
+    let data = await fetch(`/api/insightsList?page=${query?.pageIndex}`);
+    return data.json();
+}
+
 
 async function deleteInsight(id: string) {
     let data = await fetch('/api/deleteInsights', {
@@ -67,11 +73,13 @@ const beforeUpload = (file: RcFile) => {
 };
 
 
-export default function InsightsManager({ dataSource, setDataSource }: any) {
+export default function InsightsManager() {
+    const [dataSource, setDataSource] = useState({ data: [], total: 0 } as any);
     const [open, setOpen] = useState(false);
     const [isBrowser, setBrowser] = useState(false);
     const [formData, setFormData] = useState({ htmlContent: '', pic: '', tags: [] });
     const [messageApi, contextHolder] = message.useMessage();
+    const [pageIndex, SetPageIndex] = useState(1)
 
 
     const [form] = Form.useForm();
@@ -96,7 +104,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
         addInsight(formData).then((res) => {
             console.log(JSON.stringify(res));
             if (res) {
-                setDataSource([{ _id: res.insertedId, ...formData }, ...dataSource]);
+                setDataSource({ data: [{ _id: res.insertedId, ...formData }, ...dataSource.data], total: dataSource?.total + 1 });
             }
         });
         setOpen(false);
@@ -160,12 +168,19 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
         placeholder: '请输入内容...',
     }
 
+
+
     useEffect(() => {
+        getInitialData({ pageIndex: pageIndex }).then((res) => {
+            if (res) {
+                setDataSource(res);
+            }
+        });
         let editorjs = require('@wangeditor/editor-for-react')
         Editor = editorjs.Editor;
         Toolbar = editorjs.Toolbar;
         setBrowser(true);
-    }, [])
+    }, [pageIndex])
 
     // 及时销毁 editor ，重要！
     useEffect(() => {
@@ -259,7 +274,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                             onOk(...args) {
                                 deleteInsight(record._id).then((res) => {
                                     if (res.data == 'done') {
-                                        setDataSource(dataSource?.filter((x: { _id: any; }) => x._id != record._id));
+                                        setDataSource({ data: dataSource?.data.filter((x: { _id: any; }) => x._id != record._id), total: dataSource.total - 1 });
                                     }
                                 });
                             },
@@ -344,7 +359,7 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                                     beforeUpload={beforeUpload}
                                     onChange={handleChange}
                                 >
-                                    {formData?.pic ? <img src={formData?.pic} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
+                                    {formData?.pic != "" ? <img src={formData?.pic} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
                                 </Upload>
                             </Form.Item>
                             {isBrowser ?
@@ -360,7 +375,6 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
                                         value={formData?.htmlContent}
                                         onCreated={setEditor}
                                         onChange={(editor: { getHtml: () => any; }) => {
-                                            console.log(editor.getHtml())
                                             setFormData(Object.assign(formData, { htmlContent: editor.getHtml() }))
                                         }}
                                         mode="default"
@@ -377,7 +391,14 @@ export default function InsightsManager({ dataSource, setDataSource }: any) {
             </Row>
             <Row>
                 <Col span={24}>
-                    <Table rowKey="_id" dataSource={dataSource} columns={columns} />
+                    <Table rowKey="_id" dataSource={dataSource?.data} columns={columns} pagination={false} />
+                </Col>
+            </Row>
+            <Row style={{ marginTop: 30 }}>
+                <Col span={24}>
+                    <Pagination defaultCurrent={1} current={pageIndex} pageSize={10} total={dataSource?.total} onChange={(page, pageSize) => {
+                        SetPageIndex(page);
+                    }} />
                 </Col>
             </Row>
         </>
