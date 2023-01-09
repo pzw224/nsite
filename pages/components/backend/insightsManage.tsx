@@ -1,406 +1,519 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useEffect, useRef, useState } from "react";
 import {
-    ExclamationCircleOutlined,
-    LoadingOutlined,
-    PlusOutlined
-} from '@ant-design/icons';
+  ExclamationCircleOutlined,
+  LoadingOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import {
-    SelectProps, message, Table, Tag, Space, Button, Modal, Row, Col,
-    Form, Select, FormInstance, Input, Upload, UploadProps, Pagination,
-} from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { RcFile, UploadChangeParam, UploadFile } from 'antd/es/upload';
+  SelectProps,
+  message,
+  Table,
+  Tag,
+  Space,
+  Button,
+  Modal,
+  Row,
+  Col,
+  Form,
+  Select,
+  FormInstance,
+  Input,
+  Upload,
+  UploadProps,
+  Pagination,
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
 
-import '@wangeditor/editor/dist/css/style.css' // 引入 css
+import "@wangeditor/editor/dist/css/style.css"; // 引入 css
 let Editor: any;
 let Toolbar: any;
-const options: SelectProps['options'] = [{ label: 'CFO', value: 'CFO' },
-{ label: 'Global Economy', value: 'economy' }, { label: 'Network Surveys', value: 'surveys' },
-{ label: 'Environmental Social Governance (ESG)', value: 'esg' },
-{ label: 'Corporate Responsibility', value: 'responsibility' }
+const options: SelectProps["options"] = [
+  { label: "CFO", value: "CFO" },
+  { label: "Global Economy", value: "economy" },
+  { label: "Network Surveys", value: "surveys" },
+  { label: "Environmental Social Governance (ESG)", value: "esg" },
+  { label: "Corporate Responsibility", value: "responsibility" },
 ];
 
 interface DataType {
-    _id: any;
-    pic: string;
-    typeN: string;
-    title: string;
-    tags: string[];
+  _id: any;
+  pic: string;
+  typeN: string;
+  title: string;
+  tags: string[];
 }
 
 async function getInitialData(query: any) {
-    let data = await fetch(`/api/insightsList?page=${query?.pageIndex}`);
-    return data.json();
+  let data = await fetch(`/api/insightsList?page=${query?.pageIndex}`);
+  return data.json();
 }
 
+async function insightsDetail(id: string) {
+  let data = await fetch("/api/insightsDetail?id=" + id, {
+    method: "get",
+    headers: { "Content-Type": "application/json" },
+  });
+  return data.json();
+}
 
 async function deleteInsight(id: string) {
-    let data = await fetch('/api/deleteInsights', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id })
-    });
-    return data.json();
+  let data = await fetch("/api/deleteInsights", {
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: id }),
+  });
+  return data.json();
 }
 
 async function addInsight(body: any) {
-    let data = await fetch('/api/addInsights', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-    });
-    return data.json();
+  let data = await fetch("/api/addInsights", {
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return data.json();
 }
 
-
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result as string));
-    reader.readAsDataURL(img);
+  const reader = new FileReader();
+  reader.addEventListener("load", () => callback(reader.result as string));
+  reader.readAsDataURL(img);
 };
 
 const beforeUpload = (file: RcFile) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-        message.error('You can only upload JPG/PNG file!');
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-        message.error('Image must smaller than 2MB!');
-    }
-    return isJpgOrPng && isLt2M;
+  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+  if (!isJpgOrPng) {
+    message.error("You can only upload JPG/PNG file!");
+  }
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    message.error("Image must smaller than 2MB!");
+  }
+  return isJpgOrPng && isLt2M;
 };
 
-
 export default function InsightsManager() {
-    const [dataSource, setDataSource] = useState({ data: [], total: 0 } as any);
-    const [open, setOpen] = useState(false);
-    const [isBrowser, setBrowser] = useState(false);
-    const [formData, setFormData] = useState({ htmlContent: '', pic: '', tags: [] });
-    const [messageApi, contextHolder] = message.useMessage();
-    const [pageIndex, SetPageIndex] = useState(1)
+  const [dataSource, setDataSource] = useState({ data: [], total: 0 } as any);
+  const [open, setOpen] = useState(false);
+  const [isBrowser, setBrowser] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    htmlContent: "",
+    pic: "",
+    tags: [],
+  });
+  const [messageApi, contextHolder] = message.useMessage();
+  const [pageIndex, SetPageIndex] = useState(1);
 
+  const [form] = Form.useForm();
 
-    const [form] = Form.useForm();
+  const { Option } = Select;
 
-    const { Option } = Select;
-
-    const showModal = () => {
-        form.resetFields();
-        setFormData({ htmlContent: '', pic: '', tags: [] })
-        setOpen(true);
-    };
-
-    const confirmModal = () => {
-        form.submit();
-    }
-
-    const hideModal = () => {
-        setOpen(false);
-    };
-
-    const onFinish = (values: any) => {
-        addInsight(formData).then((res) => {
-            console.log(JSON.stringify(res));
-            if (res) {
-                setDataSource({ data: [{ _id: res.insertedId, ...formData }, ...dataSource.data], total: dataSource?.total + 1 });
-            }
+  const updateModal = (id: any) => {
+    console.log(id);
+    insightsDetail(id).then((res) => {
+      if (res) {
+        console.log(res.data);
+        const tags = res?.data?.tags;
+        let newTags = tags?.map((tag: any) => {
+          return { label: tag.tag, value: tag.filter };
         });
-        setOpen(false);
-    };
+        res.data.tags = newTags;
+        setFormData(res?.data);
+      }
+      setOpen(true);
+    });
+  };
 
-    const onFinishFailed = (errorInfo: any) => {
-        messageApi.open({
-            type: 'error',
-            content: '提交失败',
+  const showModal = () => {
+    form.resetFields();
+    setFormData({ title: "", htmlContent: "", pic: "", tags: [] });
+    setOpen(true);
+  };
+
+  const confirmModal = () => {
+    form.submit();
+  };
+
+  const hideModal = () => {
+    setOpen(false);
+  };
+
+  const onFinish = (values: any) => {
+    addInsight(formData).then((res) => {
+      console.log(JSON.stringify(res));
+      if (res) {
+        setDataSource({
+          data: [{ _id: res.insertedId, ...formData }, ...dataSource.data],
+          total: dataSource?.total + 1,
         });
-        // console.log('Failed:', errorInfo);
-    };
+      }
+    });
+    setOpen(false);
+  };
 
-    const onGenderChange = (value: string) => {
-        switch (value) {
-            case 'cn':
-                setFormData(Object.assign(formData, { lang: 'cn' }));
-                return;
-            case 'en':
-                setFormData(Object.assign(formData, { lang: 'en' }));
-                return;
-            default:
-        }
+  const onFinishFailed = (errorInfo: any) => {
+    messageApi.open({
+      type: "error",
+      content: "提交失败",
+    });
+    // console.log('Failed:', errorInfo);
+  };
+
+  const onGenderChange = (value: string) => {
+    switch (value) {
+      case "cn":
+        setFormData(Object.assign(formData, { lang: "cn" }));
+        return;
+      case "en":
+        setFormData(Object.assign(formData, { lang: "en" }));
+        return;
+      default:
     }
+  };
 
-    const onTypeChange = (value: string) => {
-        switch (value) {
-            case 'articles':
-                setFormData(Object.assign(formData, { type: value, typeN: '文章' }));
-                return;
-            case 'case-studies':
-                setFormData(Object.assign(formData, { type: value, typeN: '案例研究' }));
-                return;
-            case 'videos':
-                setFormData(Object.assign(formData, { type: value, typeN: '视频' }));
-                return;
-            case 'whitepapers':
-                setFormData(Object.assign(formData, { type: value, typeN: '白皮书' }));
-                return;
-            case 'podcasts':
-                setFormData(Object.assign(formData, { type: value, typeN: '播客' }));
-                return;
+  const onTypeChange = (value: string) => {
+    switch (value) {
+      case "articles":
+        setFormData(Object.assign(formData, { type: value, typeN: "文章" }));
+        return;
+      case "case-studies":
+        setFormData(
+          Object.assign(formData, { type: value, typeN: "案例研究" })
+        );
+        return;
+      case "videos":
+        setFormData(Object.assign(formData, { type: value, typeN: "视频" }));
+        return;
+      case "whitepapers":
+        setFormData(Object.assign(formData, { type: value, typeN: "白皮书" }));
+        return;
+      case "podcasts":
+        setFormData(Object.assign(formData, { type: value, typeN: "播客" }));
+        return;
 
-            default:
-        }
+      default:
     }
+  };
 
-    const tagChange = (value: [any]) => {
-        setFormData(Object.assign(formData, { tags: value?.map(tag => { return { tag: tag.label, filter: tag.value } }) }))
-    }
-
-    const [loading, setLoading] = useState(false);
-
-
-    const [editor, setEditor]: [any, any] = useState(null)
-
-    // 工具栏配置
-    const toolbarConfig = {}  // TS 语法
-    // 编辑器配置
-    const editorConfig = {    // TS 语法
-        placeholder: '请输入内容...',
-    }
-
-
-
-    useEffect(() => {
-        getInitialData({ pageIndex: pageIndex }).then((res) => {
-            if (res) {
-                setDataSource(res);
-            }
-        });
-        let editorjs = require('@wangeditor/editor-for-react')
-        Editor = editorjs.Editor;
-        Toolbar = editorjs.Toolbar;
-        setBrowser(true);
-    }, [pageIndex])
-
-    // 及时销毁 editor ，重要！
-    useEffect(() => {
-        return () => {
-            if (editor == null) return
-            editor.destroy()
-            setEditor(null)
-        }
-    }, [editor])
-
-    const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
-        if (info.file.status === 'uploading') {
-            setLoading(true);
-            return;
-        }
-        if (info.file.status === 'done') {
-            // Get this url from response in real world.
-            getBase64(info.file.originFileObj as RcFile, (url) => {
-                setLoading(false);
-                setFormData(Object.assign(formData, { pic: url?.toString() }))
-            });
-        }
-    };
-
-    const uploadButton = (
-        <div>
-            {loading ? <LoadingOutlined /> : <PlusOutlined />}
-            <div style={{ marginTop: 8 }}>Upload</div>
-        </div>
+  const tagChange = (value: [any]) => {
+    setFormData(
+      Object.assign(formData, {
+        tags: value?.map((tag) => {
+          return { tag: tag.label, filter: tag.value };
+        }),
+      })
     );
+  };
 
+  const [loading, setLoading] = useState(false);
 
-    const columns: ColumnsType<DataType> = [
-        {
-            key: '_id',
-            title: 'id',
-            dataIndex: '_id',
-        },
-        {
-            key: 'lang',
-            title: '语言',
-            dataIndex: 'lang',
-            render: (lang: string) => { return lang == 'cn' ? <span>中文</span> : <span>英文</span> }
-        },
-        {
-            key: 'pic',
-            title: '图片',
-            dataIndex: 'pic',
-            render: (src: string) => src ? <img src={src} style={{ width: 20, height: 20 }} /> : null,
-        },
-        {
-            key: 'typeN',
-            title: '类型',
-            dataIndex: 'typeN',
-        },
-        {
-            key: 'title',
-            title: '标题',
-            dataIndex: 'title',
-        },
-        {
-            title: 'tags',
-            key: '标记',
-            dataIndex: 'tags',
-            render: (_: any, record: { tags: [{ tag: string, filter: string }] }) => (
-                <>
-                    {record?.tags?.map((data) => {
-                        let color = data?.tag?.length > 15 ? 'geekblue' : 'green';
-                        if (data?.tag === 'CFO') {
-                            color = 'volcano';
-                        }
-                        return (
-                            <Tag color={color} key={data?.tag}>
-                                {data?.tag}
-                            </Tag>
-                        );
-                    })}
-                </>
-            ),
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Space size="middle">
-                    <Button type="link" title='修改'>修改</Button>
-                    <Button type="link" title='删除' danger onClick={() => {
-                        Modal.confirm({
-                            title: 'Confirm',
-                            icon: <ExclamationCircleOutlined />,
-                            onOk(...args) {
-                                deleteInsight(record._id).then((res) => {
-                                    if (res.data == 'done') {
-                                        setDataSource({ data: dataSource?.data.filter((x: { _id: any; }) => x._id != record._id), total: dataSource.total - 1 });
-                                    }
-                                });
-                            },
-                            content: '确定删除吗',
-                            okText: '确认',
-                            cancelText: '取消',
-                        });
-                    }}>删除</Button>
-                </Space>
-            ),
-        },
-    ];
-    if (!dataSource) return null;
-    return (
+  const [editor, setEditor]: [any, any] = useState(null);
+
+  // 工具栏配置
+  const toolbarConfig = {}; // TS 语法
+  // 编辑器配置
+  const editorConfig = {
+    // TS 语法
+    placeholder: "请输入内容...",
+  };
+
+  useEffect(() => {
+    getInitialData({ pageIndex: pageIndex }).then((res) => {
+      if (res) {
+        setDataSource(res);
+      }
+    });
+    let editorjs = require("@wangeditor/editor-for-react");
+    Editor = editorjs.Editor;
+    Toolbar = editorjs.Toolbar;
+    setBrowser(true);
+  }, [pageIndex]);
+
+  // 及时销毁 editor ，重要！
+  useEffect(() => {
+    return () => {
+      if (editor == null) return;
+      editor.destroy();
+      setEditor(null);
+    };
+  }, [editor]);
+
+  const handleChange: UploadProps["onChange"] = (
+    info: UploadChangeParam<UploadFile>
+  ) => {
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get this url from response in real world.
+      getBase64(info.file.originFileObj as RcFile, (url) => {
+        setLoading(false);
+        setFormData(Object.assign(formData, { pic: url?.toString() }));
+      });
+    }
+  };
+
+  const uploadButton = (
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
+  const columns: ColumnsType<DataType> = [
+    {
+      key: "_id",
+      title: "id",
+      dataIndex: "_id",
+    },
+    {
+      key: "lang",
+      title: "语言",
+      dataIndex: "lang",
+      render: (lang: string) => {
+        return lang == "cn" ? <span>中文</span> : <span>英文</span>;
+      },
+    },
+    {
+      key: "pic",
+      title: "图片",
+      dataIndex: "pic",
+      render: (src: string) =>
+        src ? <img src={src} style={{ width: 20, height: 20 }} /> : null,
+    },
+    {
+      key: "typeN",
+      title: "类型",
+      dataIndex: "typeN",
+    },
+    {
+      key: "title",
+      title: "标题",
+      dataIndex: "title",
+    },
+    {
+      title: "tags",
+      key: "标记",
+      dataIndex: "tags",
+      render: (_: any, record: { tags: [{ tag: string; filter: string }] }) => (
         <>
-            {contextHolder}
-            <Row style={{ marginBottom: 16 }}>
-                <Col span={12}>
-                    <Button type="primary" onClick={showModal}>
-                        新增
-                    </Button>
-                    <Modal
-                        title="新增洞见"
-                        open={open}
-                        onOk={confirmModal}
-                        onCancel={hideModal}
-                        okText="确认"
-                        cancelText="取消"
-                    >
-                        <Form
-                            form={form}
-                            name="basic"
-                            initialValues={{ remember: true }}
-                            onFinish={onFinish}
-                            onFinishFailed={onFinishFailed}
-                            autoComplete="off"
-                        >
-                            <Form.Item
-                                name="lang" label="语言" rules={[{ required: true, message: '必须选择语言' }]}
-                            >
-                                <Select
-                                    placeholder="Select a option and change input text above"
-                                    onChange={onGenderChange}
-                                >
-                                    <Option value="cn">中文</Option>
-                                    <Option value="en">英文</Option>
-                                </Select>
-                            </Form.Item>
-                            <Form.Item name="type" label="类型" rules={[{ required: true, message: '必须选择类型' }]}>
-                                <Select
-                                    placeholder="Select a option and change input text above"
-                                    onChange={onTypeChange}
-                                >
-                                    <Option value="articles">文章</Option>
-                                    <Option value="case-studies">案例研究</Option>
-                                    <Option value="videos">视频</Option>
-                                    <Option value="whitepapers">白皮书</Option>
-                                    <Option value="podcasts">播客</Option>
-                                </Select>
-                            </Form.Item>
-                            <Form.Item name="title" label="标题" rules={[{ required: true, message: '请输入标题!' }]}>
-                                <Input onChange={(title) => { setFormData(Object.assign(formData, { title: title?.target?.value })); }} />
-                            </Form.Item>
-                            <Form.Item name="tags" label="标签" >
-                                <Select
-                                    mode="tags"
-                                    style={{ width: '200px' }}
-                                    placeholder="Tags Mode"
-                                    labelInValue={true}
-                                    onChange={tagChange}
-                                    options={options}
-                                />
-                            </Form.Item>
-                            <Form.Item name="pic" label="图片" wrapperCol={{ span: 24 }}>
-                                <Upload
-                                    method='POST'
-                                    name="avatar"
-                                    listType="picture-card"
-                                    className="avatar-uploader"
-                                    showUploadList={false}
-
-                                    beforeUpload={beforeUpload}
-                                    onChange={handleChange}
-                                >
-                                    {formData?.pic != "" ? <img src={formData?.pic} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-                                </Upload>
-                            </Form.Item>
-                            {isBrowser ?
-                                <Form.Item>
-                                    <Toolbar
-                                        editor={editor}
-                                        defaultConfig={toolbarConfig}
-                                        mode="default"
-                                        style={{ borderBottom: '1px solid #ccc' }}
-                                    />
-                                    <Editor
-                                        defaultConfig={editorConfig}
-                                        value={formData?.htmlContent}
-                                        onCreated={setEditor}
-                                        onChange={(editor: { getHtml: () => any; }) => {
-                                            setFormData(Object.assign(formData, { htmlContent: editor.getHtml() }))
-                                        }}
-                                        mode="default"
-                                        style={{ height: '100px', overflowY: 'hidden' }}
-                                    />
-                                </Form.Item>
-                                : null}
-                        </Form>
-                    </Modal>
-                </Col>
-                <Col span={6}>
-
-                </Col>
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Table rowKey="_id" dataSource={dataSource?.data} columns={columns} pagination={false} />
-                </Col>
-            </Row>
-            <Row style={{ marginTop: 30 }}>
-                <Col span={24}>
-                    <Pagination defaultCurrent={1} current={pageIndex} pageSize={10} total={dataSource?.total} onChange={(page, pageSize) => {
-                        SetPageIndex(page);
-                    }} />
-                </Col>
-            </Row>
+          {record?.tags?.map((data) => {
+            let color = data?.tag?.length > 15 ? "geekblue" : "green";
+            if (data?.tag === "CFO") {
+              color = "volcano";
+            }
+            return (
+              <Tag color={color} key={data?.tag}>
+                {data?.tag}
+              </Tag>
+            );
+          })}
         </>
-    )
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button
+            type="link"
+            title="修改"
+            onClick={() => {
+              updateModal(record._id);
+            }}
+          >
+            修改
+          </Button>
+          <Button
+            type="link"
+            title="删除"
+            danger
+            onClick={() => {
+              Modal.confirm({
+                title: "Confirm",
+                icon: <ExclamationCircleOutlined />,
+                onOk(...args) {
+                  deleteInsight(record._id).then((res) => {
+                    if (res.data == "done") {
+                      setDataSource({
+                        data: dataSource?.data.filter(
+                          (x: { _id: any }) => x._id != record._id
+                        ),
+                        total: dataSource.total - 1,
+                      });
+                    }
+                  });
+                },
+                content: "确定删除吗",
+                okText: "确认",
+                cancelText: "取消",
+              });
+            }}
+          >
+            删除
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+  if (!dataSource) return null;
+  return (
+    <>
+      {contextHolder}
+      <Row style={{ marginBottom: 16 }}>
+        <Col span={12}>
+          <Button type="primary" onClick={showModal}>
+            新增
+          </Button>
+          <Modal
+            title="新增洞见"
+            open={open}
+            onOk={confirmModal}
+            onCancel={hideModal}
+            okText="确认"
+            cancelText="取消"
+          >
+            <Form
+              form={form}
+              name="basic"
+              initialValues={{ remember: true }}
+              onFinish={onFinish}
+              onFinishFailed={onFinishFailed}
+              autoComplete="off"
+            >
+              <Form.Item
+                name="lang"
+                label="语言"
+                rules={[{ required: true, message: "必须选择语言" }]}
+              >
+                <Select
+                  placeholder="Select a option and change input text above"
+                  onChange={onGenderChange}
+                >
+                  <Option value="cn">中文</Option>
+                  <Option value="en">英文</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="type"
+                label="类型"
+                rules={[{ required: true, message: "必须选择类型" }]}
+              >
+                <Select
+                  placeholder="Select a option and change input text above"
+                  onChange={onTypeChange}
+                >
+                  <Option value="articles">文章</Option>
+                  <Option value="case-studies">案例研究</Option>
+                  <Option value="videos">视频</Option>
+                  <Option value="whitepapers">白皮书</Option>
+                  <Option value="podcasts">播客</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="title"
+                label="标题"
+                rules={[{ required: true, message: "请输入标题!" }]}
+              >
+                <Input
+                  defaultValue={formData?.title}
+                  value={formData?.title}
+                  onChange={(title) => {
+                    setFormData(
+                      Object.assign(formData, { title: title?.target?.value })
+                    );
+                  }}
+                />
+              </Form.Item>
+              <Form.Item name="tags" label="标签">
+                <Select
+                  defaultValue={formData?.tags as any}
+                  mode="tags"
+                  style={{ width: "200px" }}
+                  placeholder="Tags Mode"
+                  labelInValue={true}
+                  onChange={tagChange}
+                  options={options}
+                />
+              </Form.Item>
+              <Form.Item name="pic" label="图片" wrapperCol={{ span: 24 }}>
+                <Upload
+                  method="POST"
+                  name="avatar"
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={false}
+                  beforeUpload={beforeUpload}
+                  onChange={handleChange}
+                >
+                  {formData?.pic != "" ? (
+                    <img
+                      src={formData?.pic}
+                      alt="avatar"
+                      style={{ width: "100%" }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              </Form.Item>
+              {isBrowser ? (
+                <Form.Item>
+                  <Toolbar
+                    editor={editor}
+                    defaultConfig={toolbarConfig}
+                    mode="default"
+                    style={{ borderBottom: "1px solid #ccc" }}
+                  />
+                  <Editor
+                    defaultConfig={editorConfig}
+                    value={formData?.htmlContent}
+                    onCreated={setEditor}
+                    onChange={(editor: { getHtml: () => any }) => {
+                      setFormData(
+                        Object.assign(formData, {
+                          htmlContent: editor.getHtml(),
+                        })
+                      );
+                    }}
+                    mode="default"
+                    style={{ height: "100px", overflowY: "hidden" }}
+                  />
+                </Form.Item>
+              ) : null}
+            </Form>
+          </Modal>
+        </Col>
+        <Col span={6}></Col>
+      </Row>
+      <Row>
+        <Col span={24}>
+          <Table
+            rowKey="_id"
+            dataSource={dataSource?.data}
+            columns={columns}
+            pagination={false}
+          />
+        </Col>
+      </Row>
+      <Row style={{ marginTop: 30 }}>
+        <Col span={24}>
+          <Pagination
+            defaultCurrent={1}
+            current={pageIndex}
+            pageSize={10}
+            total={dataSource?.total}
+            onChange={(page, pageSize) => {
+              SetPageIndex(page);
+            }}
+          />
+        </Col>
+      </Row>
+    </>
+  );
 }
