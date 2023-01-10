@@ -16,7 +16,7 @@ const Footer = () => {
                             <ul className="footer-menu-column">
                                 <ul className="footer-sub-menu">
                                     <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-1 menu-item-has-children menu-item-h1">
-                                        <div href="">
+                                        <div>
                                             <span>客户行业</span>
                                             <span className="menu-expand"></span>
                                         </div>
@@ -112,7 +112,7 @@ const Footer = () => {
 
                                     </li>
                                     <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-1 menu-item-has-children menu-item-h1">
-                                        <div href="">
+                                        <div>
                                             <span>服务内容</span>
                                             <span className="menu-expand"></span>
                                         </div>

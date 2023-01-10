@@ -14,7 +14,7 @@ interface IinitialData {
   tags: Array<{ tag: string; filter: string }>;
 }
 
-export const InsightsPage: React.FC = () => {
+ const InsightsPage: React.FC = () => {
   const [selectClass, setSelectClass] = useState("");
   const [initialData, setInitalData] = useState([] as any);
   useEffect(function () {
@@ -190,3 +190,6 @@ export const InsightsPage: React.FC = () => {
     </>
   );
 };
+
+
+export default  InsightsPage

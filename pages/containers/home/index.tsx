@@ -1,6 +1,6 @@
 import React from 'react'
 import style from './styles/index.module.scss';
-import Menu from './components/menu';
+// import Menu from './components/menu';
 import Banner from './components/banner'
 import ScrollBar from './components/scroll-bar';
 import ContentInfo from './components/content';

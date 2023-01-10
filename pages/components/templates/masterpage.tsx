@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from "react";
 
 export function MasterPage(layout: any, props: any) {
   return (Comp: any): any => {
@@ -7,10 +7,12 @@ export function MasterPage(layout: any, props: any) {
         return React.createElement(
           layout,
           { props, ...this.props },
-          React.createElement(Comp, this.props),
-        )
+          React.createElement(Comp, this.props)
+        );
       }
     }
-    return WrapperComponent
-  }
+    return WrapperComponent;
+  };
 }
+
+export default MasterPage;

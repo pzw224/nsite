@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { MongoClient, ObjectID } from "mongodb";
-import { url } from "../common/mongoData";
+import url from "../../common/mongoData";
 
 export default function handler(
   req: NextApiRequest,

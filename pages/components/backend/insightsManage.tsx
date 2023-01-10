@@ -67,6 +67,15 @@ async function deleteInsight(id: string) {
   return data.json();
 }
 
+async function updateInsight(formData: any) {
+  let data = await fetch("/api/updateInsights", {
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ data: formData }),
+  });
+  return data.json();
+}
+
 async function addInsight(body: any) {
   let data = await fetch("/api/addInsights", {
     method: "post",
@@ -94,30 +103,32 @@ const beforeUpload = (file: RcFile) => {
   return isJpgOrPng && isLt2M;
 };
 enum modalType {
-    add,
-    edit
+  add,
+  edit,
 }
 
+const typeInfo: any = {
+  articles: "文章",
+  "case-studies": "案例研究",
+  videos: "视频",
+  whitepapers: "白皮书",
+  podcasts: "播客",
+};
 
 export default function InsightsManager() {
   const [dataSource, setDataSource] = useState({ data: [], total: 0 } as any);
   const [open, setOpen] = useState(false);
   const [isBrowser, setBrowser] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    htmlContent: "",
-    pic: "",
-    tags: [],
-  });
   const [messageApi, contextHolder] = message.useMessage();
   const [pageIndex, SetPageIndex] = useState(1);
+  const [action, setAction] = useState(modalType.add);
 
   const [form] = Form.useForm();
 
   const { Option } = Select;
 
   const updateModal = (id: any) => {
-    console.log(id);
+    setAction(modalType.edit);
     insightsDetail(id).then((res) => {
       if (res) {
         console.log(res.data);
@@ -126,15 +137,19 @@ export default function InsightsManager() {
           return { label: tag.tag, value: tag.filter };
         });
         res.data.tags = newTags;
-        setFormData(res?.data);
+        if (!res?.data?.htmlContent) {
+          res.data.htmlContent = "";
+        }
+        form.setFieldsValue(res?.data);
       }
       setOpen(true);
     });
   };
 
   const showModal = () => {
+    setAction(modalType.add);
     form.resetFields();
-    setFormData({ title: "", htmlContent: "", pic: "", tags: [] });
+    // form.setFieldsValue({ title: "", htmlContent: "", pic: "", tags: [] });
     setOpen(true);
   };
 
@@ -147,15 +162,38 @@ export default function InsightsManager() {
   };
 
   const onFinish = (values: any) => {
-    addInsight(formData).then((res) => {
-      console.log(JSON.stringify(res));
-      if (res) {
-        setDataSource({
-          data: [{ _id: res.insertedId, ...formData }, ...dataSource.data],
-          total: dataSource?.total + 1,
-        });
-      }
+    let formData = form.getFieldsValue(true);
+    formData.tags = formData?.tags.map((tag: any) => {
+      return { tag: tag.label, filter: tag.value };
     });
+    const tag = formData.type;
+    formData.typeN = typeInfo[tag];
+    console.log(formData);
+    if (action == modalType.add) {
+      addInsight(formData).then((res) => {
+        console.log(JSON.stringify(res));
+        if (res) {
+          setDataSource({
+            data: [{ _id: res.insertedId, ...formData }, ...dataSource.data],
+            total: dataSource?.total + 1,
+          });
+        }
+      });
+    } else {
+      updateInsight(formData).then((res) => {
+        if (res.data == "done") {
+          setDataSource({
+            data: dataSource?.data?.map((x: any) => {
+              if (x._id == formData?._id) {
+                return formData;
+              }
+              return x;
+            }),
+            total: dataSource.total,
+          });
+        }
+      });
+    }
     setOpen(false);
   };
 
@@ -165,52 +203,6 @@ export default function InsightsManager() {
       content: "提交失败",
     });
     // console.log('Failed:', errorInfo);
-  };
-
-  const onGenderChange = (value: string) => {
-    switch (value) {
-      case "cn":
-        setFormData(Object.assign(formData, { lang: "cn" }));
-        return;
-      case "en":
-        setFormData(Object.assign(formData, { lang: "en" }));
-        return;
-      default:
-    }
-  };
-
-  const onTypeChange = (value: string) => {
-    switch (value) {
-      case "articles":
-        setFormData(Object.assign(formData, { type: value, typeN: "文章" }));
-        return;
-      case "case-studies":
-        setFormData(
-          Object.assign(formData, { type: value, typeN: "案例研究" })
-        );
-        return;
-      case "videos":
-        setFormData(Object.assign(formData, { type: value, typeN: "视频" }));
-        return;
-      case "whitepapers":
-        setFormData(Object.assign(formData, { type: value, typeN: "白皮书" }));
-        return;
-      case "podcasts":
-        setFormData(Object.assign(formData, { type: value, typeN: "播客" }));
-        return;
-
-      default:
-    }
-  };
-
-  const tagChange = (value: [any]) => {
-    setFormData(
-      Object.assign(formData, {
-        tags: value?.map((tag) => {
-          return { tag: tag.label, filter: tag.value };
-        }),
-      })
-    );
   };
 
   const [loading, setLoading] = useState(false);
@@ -226,15 +218,17 @@ export default function InsightsManager() {
   };
 
   useEffect(() => {
+    let editorjs = require("@wangeditor/editor-for-react");
+    Editor = editorjs.Editor;
+    Toolbar = editorjs.Toolbar;
+    setBrowser(true);
+  }, []);
+  useEffect(() => {
     getInitialData({ pageIndex: pageIndex }).then((res) => {
       if (res) {
         setDataSource(res);
       }
     });
-    let editorjs = require("@wangeditor/editor-for-react");
-    Editor = editorjs.Editor;
-    Toolbar = editorjs.Toolbar;
-    setBrowser(true);
   }, [pageIndex]);
 
   // 及时销毁 editor ，重要！
@@ -257,7 +251,7 @@ export default function InsightsManager() {
       // Get this url from response in real world.
       getBase64(info.file.originFileObj as RcFile, (url) => {
         setLoading(false);
-        setFormData(Object.assign(formData, { pic: url?.toString() }));
+        form.setFieldValue("pic", url?.toString());
       });
     }
   };
@@ -386,20 +380,31 @@ export default function InsightsManager() {
             <Form
               form={form}
               name="basic"
-              initialValues={{ remember: true }}
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
               autoComplete="off"
+              onValuesChange={(values) => {
+                const changKey = Object.keys(values)?.[0];
+                const changValue = Object.values(values)?.[0] as any;
+                if (changKey == "tags") {
+                  let finalValue = changValue?.map((data: any) => {
+                    return Object.assign(
+                      data,
+                      data.label ? {} : { label: data.value, key: data.value }
+                    );
+                  });
+                  form.setFieldValue(changKey, finalValue);
+                } else {
+                  form.setFieldValue(changKey, changValue);
+                }
+              }}
             >
               <Form.Item
                 name="lang"
                 label="语言"
                 rules={[{ required: true, message: "必须选择语言" }]}
               >
-                <Select
-                  placeholder="Select a option and change input text above"
-                  onChange={onGenderChange}
-                >
+                <Select placeholder="Select a option and change input text above">
                   <Option value="cn">中文</Option>
                   <Option value="en">英文</Option>
                 </Select>
@@ -411,7 +416,7 @@ export default function InsightsManager() {
               >
                 <Select
                   placeholder="Select a option and change input text above"
-                  onChange={onTypeChange}
+                  //   onChange={onTypeChange}
                 >
                   <Option value="articles">文章</Option>
                   <Option value="case-studies">案例研究</Option>
@@ -425,25 +430,14 @@ export default function InsightsManager() {
                 label="标题"
                 rules={[{ required: true, message: "请输入标题!" }]}
               >
-                <Input
-                  defaultValue={formData?.title}
-                  value={formData?.title}
-                  onChange={(title) => {
-                    setFormData(
-                      Object.assign(formData, { title: title?.target?.value })
-                    );
-                  }}
-                />
+                <Input />
               </Form.Item>
               <Form.Item name="tags" label="标签">
                 <Select
-                  defaultValue={formData?.tags as any}
-                  value={formData?.tags as any}
                   mode="tags"
                   style={{ width: "200px" }}
                   placeholder="Tags Mode"
                   labelInValue={true}
-                  onChange={tagChange}
                   options={options}
                 />
               </Form.Item>
@@ -457,9 +451,9 @@ export default function InsightsManager() {
                   beforeUpload={beforeUpload}
                   onChange={handleChange}
                 >
-                  {formData?.pic != "" ? (
+                  {!!form.getFieldValue("pic") ? (
                     <img
-                      src={formData?.pic}
+                      src={form.getFieldValue("pic")}
                       alt="avatar"
                       style={{ width: "100%" }}
                     />
@@ -469,27 +463,25 @@ export default function InsightsManager() {
                 </Upload>
               </Form.Item>
               {isBrowser ? (
-                <Form.Item>
-                  <Toolbar
-                    editor={editor}
-                    defaultConfig={toolbarConfig}
-                    mode="default"
-                    style={{ borderBottom: "1px solid #ccc" }}
-                  />
-                  <Editor
-                    defaultConfig={editorConfig}
-                    value={formData?.htmlContent}
-                    onCreated={setEditor}
-                    onChange={(editor: { getHtml: () => any }) => {
-                      setFormData(
-                        Object.assign(formData, {
-                          htmlContent: editor.getHtml(),
-                        })
-                      );
-                    }}
-                    mode="default"
-                    style={{ height: "100px", overflowY: "hidden" }}
-                  />
+                <Form.Item name={"htmlContent"}>
+                  <>
+                    <Toolbar
+                      editor={editor}
+                      defaultConfig={toolbarConfig}
+                      mode="default"
+                      style={{ borderBottom: "1px solid #ccc" }}
+                    />
+                    <Editor
+                      defaultConfig={editorConfig}
+                      value={form.getFieldValue("htmlContent")}
+                      onCreated={setEditor}
+                      onChange={(editor: { getHtml: () => any }) => {
+                        form.setFieldValue("htmlContent", editor.getHtml());
+                      }}
+                      mode="default"
+                      style={{ height: "100px", overflowY: "hidden" }}
+                    />
+                  </>
                 </Form.Item>
               ) : null}
             </Form>

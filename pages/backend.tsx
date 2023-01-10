@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
-} from '@ant-design/icons';
-import { Button, Col, Layout, Menu, Modal, Row, theme } from 'antd';
-import { BackendPage } from './containers/backend';
+} from "@ant-design/icons";
+import { Button, Col, Layout, Menu, Modal, Row, theme } from "antd";
+import BackendPage from "./containers/backend";
 
 export default function Backend(props: any) {
   const { Sider, Header, Content } = Layout;
@@ -31,7 +31,7 @@ export default function Backend(props: any) {
       label: "专家洞见管理",
     },
   ];
-  const [selectData, setSelectData] = useState('1');
+  const [selectData, setSelectData] = useState("1");
   const [collapsed, setCollapsed] = useState(false);
   return (
     <Layout>
@@ -42,7 +42,7 @@ export default function Backend(props: any) {
           mode="inline"
           defaultSelectedKeys={["1"]}
           onSelect={(item) => {
-            setSelectData(item.key)
+            setSelectData(item.key);
           }}
           items={menu}
         />
@@ -56,7 +56,6 @@ export default function Backend(props: any) {
               onClick: () => setCollapsed(!collapsed),
             }
           )}
-
         </Header>
         <Content
           style={{
@@ -70,6 +69,5 @@ export default function Backend(props: any) {
         </Content>
       </Layout>
     </Layout>
-  )
-
+  );
 }

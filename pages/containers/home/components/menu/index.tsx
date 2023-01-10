@@ -7,7 +7,7 @@ const Menu: React.FC<any> = ({ menulist }) => {
         </div>
         <div className={style['menu-list']}>
             <ul className={style['menu-ul']}>
-                {menulist.map((el: any) => (<li key={el.name}>{el.name}</li>))}
+                {menulist?.map((el: any) => (<li key={el.name}>{el.name}</li>))}
             </ul>
         </div>
     </div >

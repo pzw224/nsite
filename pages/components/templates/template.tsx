@@ -1,7 +1,7 @@
 import Header from "../../containers/home/components/header";
 import Footer from "../footer";
 
-export const Template = (props: any) => {
+const Template = (props: any) => {
   const { children } = props;
   return (
     <div>
@@ -13,3 +13,5 @@ export const Template = (props: any) => {
     </div>
   );
 };
+
+export default Template;

@@ -2,7 +2,7 @@ const Banner = () => {
     return (
 
         <div className="glg-block glg-block-banner-hero-v2 scroll-transitions scroll-transitions--enabled scroll-transitions--active">
-            <img width="1500" height="627" src="https://assets.glginsights.com/wp-content/uploads/2021/09/D1_HomepageImage-2.jpg" className="banner-hero-v2-image" alt="" loading="lazy" srcset="https://assets.glginsights.com/wp-content/uploads/2021/09/D1_HomepageImage-2-360x600.jpg 360w, https://assets.glginsights.com/wp-content/uploads/2021/09/D1_HomepageImage-2-420x627.jpg 420w, https://assets.glginsights.com/wp-content/uploads/2021/09/D1_HomepageImage-2-1260x627.jpg 1260w, https://assets.glginsights.com/wp-content/uploads/2021/09/D1_HomepageImage-2-1366x571.jpg 1366w, https://assets.glginsights.com/wp-content/uploads/2021/09/D1_HomepageImage-2.jpg 1500w" sizes="(max-width: 1500px) 100vw, 1500px" />
+            <img width="1500" height="627" src="https://assets.glginsights.com/wp-content/uploads/2021/09/D1_HomepageImage-2.jpg" className="banner-hero-v2-image" alt="" loading="lazy" sizes="(max-width: 1500px) 100vw, 1500px" />
             <div className="banner-hero-v2-content">
                 <h1 className="banner-hero-v2-title">汇聚全球洞见</h1>
                 <p className="banner-hero-v2-subtitle">汇聚专业洞见，助力卓越决策</p>
