@@ -42,7 +42,7 @@ interface DataType {
   pic: string;
   typeN: string;
   title: string;
-  tags: string[];
+  tags: any;
 }
 
 async function getInitialData(query: any) {
@@ -438,6 +438,7 @@ export default function InsightsManager() {
               <Form.Item name="tags" label="标签">
                 <Select
                   defaultValue={formData?.tags as any}
+                  value={formData?.tags as any}
                   mode="tags"
                   style={{ width: "200px" }}
                   placeholder="Tags Mode"
