@@ -93,6 +93,11 @@ const beforeUpload = (file: RcFile) => {
   }
   return isJpgOrPng && isLt2M;
 };
+enum modalType {
+    add,
+    edit
+}
+
 
 export default function InsightsManager() {
   const [dataSource, setDataSource] = useState({ data: [], total: 0 } as any);
