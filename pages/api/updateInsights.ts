@@ -21,7 +21,6 @@ export default function handler(
           whereStr,
           { $set: updateInfo },
           function (err: any, obj: any) {
-            console.log(err, obj);
             if (err) throw err;
             console.log("文档更新成功");
             db?.close();

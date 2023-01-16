@@ -25,6 +25,13 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
+import {
+  getInitialData,
+  insightsDetail,
+  deleteInsight,
+  updateInsight,
+  addInsight,
+} from "../../../common/browserapi/insights";
 
 import "@wangeditor/editor/dist/css/style.css"; // 引入 css
 let Editor: any;
@@ -43,46 +50,6 @@ interface DataType {
   typeN: string;
   title: string;
   tags: any;
-}
-
-async function getInitialData(query: any) {
-  let data = await fetch(`/api/insightsList?page=${query?.pageIndex}`);
-  return data.json();
-}
-
-async function insightsDetail(id: string) {
-  let data = await fetch("/api/insightsDetail?id=" + id, {
-    method: "get",
-    headers: { "Content-Type": "application/json" },
-  });
-  return data.json();
-}
-
-async function deleteInsight(id: string) {
-  let data = await fetch("/api/deleteInsights", {
-    method: "post",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: id }),
-  });
-  return data.json();
-}
-
-async function updateInsight(formData: any) {
-  let data = await fetch("/api/updateInsights", {
-    method: "post",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ data: formData }),
-  });
-  return data.json();
-}
-
-async function addInsight(body: any) {
-  let data = await fetch("/api/addInsights", {
-    method: "post",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  return data.json();
 }
 
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
@@ -295,6 +262,11 @@ export default function InsightsManager() {
       dataIndex: "title",
     },
     {
+      key: "author",
+      title: "作者简介",
+      dataIndex: "author",
+    },
+    {
       title: "tags",
       key: "标记",
       dataIndex: "tags",
@@ -430,6 +402,9 @@ export default function InsightsManager() {
                 label="标题"
                 rules={[{ required: true, message: "请输入标题!" }]}
               >
+                <Input />
+              </Form.Item>
+              <Form.Item name="author" label="作者">
                 <Input />
               </Form.Item>
               <Form.Item name="tags" label="标签">

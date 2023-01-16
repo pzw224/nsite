@@ -1,6 +1,12 @@
+import { useRouter } from "next/router";
+import { useState } from "react";
+
 /* eslint-disable @next/next/no-html-link-for-pages */
 const Header = (props: any) => {
   const { mastheadClass = "" } = props; //masthead--transparent
+  const [langs, setLang] = useState(false);
+  const router = useRouter();
+  const { lang } = router.query;
   return (
     <header id="masthead" className={mastheadClass}>
       <div className="header-menu-overlay header-menu-overlay--primary"></div>
@@ -371,48 +377,18 @@ const Header = (props: any) => {
             </li>
           </ul>
           <ul
+            style={{ background: "#0f122b" }}
             id="menu-header-right"
             className="header-menu header-menu-secondary"
           >
             <li
-              id="menu-item-10835"
-              className="header-menu-item header-menu-item-10835 menu-item-depth--0 header-menu-item--has-children"
-            >
-              <button className="header-menu-link">
-                <span>登录</span>
-              </button>
-              <div className="header-sub-menu">
-                <ul className="header-sub-menu-column">
-                  <li className="header-menu-item header-menu-item-10836 menu-item-depth--1">
-                    <a
-                      href="https://myglg.glgresearch.com/projects-listing/?utm_source=glginsights.com&amp;utm_medium=website&amp;utm_campaign=myglglogin"
-                      className="header-menu-link"
-                    >
-                      <span>客户登录 - MyGLG</span>
-                    </a>
-                  </li>
-                  <li className="header-menu-item header-menu-item-10837 menu-item-depth--1">
-                    <a
-                      href="https://services.glgresearch.com/go-compliance/"
-                      className="header-menu-link"
-                    >
-                      <span>客户合规人士</span>
-                    </a>
-                  </li>
-                  <li className="header-menu-item header-menu-item-10838 menu-item-depth--1">
-                    <a
-                      href="https://members.glgresearch.com/profile?utm_campaign=glgit"
-                      className="header-menu-link"
-                    >
-                      <span>专家团成员</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </li>
-            <li
               id="menu-item-10834"
-              className="header-menu-item header-menu-item-10834 menu-item-depth--0"
+              className={`header-menu-item header-menu-item-10834 menu-item-depth--0 ${
+                langs ? "active" : ""
+              }`}
+              onClick={() => {
+                setLang(!langs);
+              }}
             >
               <button type="button" className="header-menu-link">
                 <span>
@@ -430,19 +406,38 @@ const Header = (props: any) => {
                   </svg>
                 </span>
               </button>
-              <div className="header-sub-menu">
+              <div
+                className="header-sub-menu"
+                style={{ background: "#0f122b" }}
+              >
                 <ul className="header-sub-menu-column">
                   <li className="header-menu-item menu-item-depth--1">
                     <a
-                      href="https://glginsights.com/"
-                      className="header-menu-link lang-en"
-                    >
-                      <span>English</span>
-                    </a>
-                  </li>
-                  <li className="header-menu-item menu-item-depth--1">
-                    <a
-                      href="https://glginc.cn/"
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (window.location.search) {
+                          const arr = window.location.search
+                            .substring(1)
+                            .split("&");
+                          const otherArr = arr.filter(
+                            (o) => o.indexOf("lang") < 0
+                          );
+                          window.location.href =
+                            window.location.protocol +
+                            "//" +
+                            window.location.host +
+                            window.location.pathname +
+                            "?" +
+                            otherArr.join("&") +
+                            (otherArr.join("&")?.length > 0
+                              ? "&lang=cn"
+                              : "lang=cn");
+                        } else {
+                          window.location.href =
+                            window.location.href + "?lang=cn";
+                        }
+                      }}
                       className="header-menu-link lang-zh-hans current-language"
                     >
                       <span>简体中文</span>
@@ -450,28 +445,34 @@ const Header = (props: any) => {
                   </li>
                   <li className="header-menu-item menu-item-depth--1">
                     <a
-                      href="https://glginsights.com/ja/"
-                      className="header-menu-link lang-ja"
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (window.location.search) {
+                          const arr = window.location.search
+                            .substring(1)
+                            .split("&");
+                          const otherArr = arr.filter(
+                            (o) => o.indexOf("lang") < 0
+                          );
+                          window.location.href =
+                            window.location.protocol +
+                            "//" +
+                            window.location.host +
+                            window.location.pathname +
+                            "?" +
+                            otherArr.join("&") +
+                            (otherArr.join("&")?.length > 0
+                              ? "&lang=en"
+                              : "lang=en");
+                        } else {
+                          window.location.href =
+                            window.location.href + "?lang=en";
+                        }
+                      }}
+                      className="header-menu-link lang-en"
                     >
-                      <span>日本語</span>
-                    </a>
-                  </li>
-                </ul>
-                <ul className="header-sub-menu-column">
-                  <li className="header-menu-item menu-item-depth--1">
-                    <a
-                      href="https://glginsights.com/ko/"
-                      className="header-menu-link lang-ko"
-                    >
-                      <span>한국어</span>
-                    </a>
-                  </li>
-                  <li className="header-menu-item menu-item-depth--1">
-                    <a
-                      href="https://glginsights.com/de/"
-                      className="header-menu-link lang-de"
-                    >
-                      <span>Deutsch</span>
+                      <span>English</span>
                     </a>
                   </li>
                 </ul>

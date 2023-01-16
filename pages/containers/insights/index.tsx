@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { getInitialData } from "../../../common/browserapi/insights";
 
-async function getInitialData() {
-  let data = await fetch("/api/insightsList");
-  return data.json();
-}
+// async function getInitialData(query: any) {
+//   let data = await fetch("/api/insightsList", query);
+//   return data.json();
+// }
 
 interface IinitialData {
   _id: string;
@@ -14,16 +16,21 @@ interface IinitialData {
   tags: Array<{ tag: string; filter: string }>;
 }
 
- const InsightsPage: React.FC = () => {
+const InsightsPage: React.FC = () => {
   const [selectClass, setSelectClass] = useState("");
   const [initialData, setInitalData] = useState([] as any);
-  useEffect(function () {
-    getInitialData().then((res) => {
-      if (res && res?.data.length > 0) {
-        setInitalData(res?.data);
-      }
-    });
-  }, []);
+  const router = useRouter();
+  const { lang } = router.query;
+  useEffect(
+    function () {
+      getInitialData({ lang: lang }).then((res) => {
+        if (res && res?.data) {
+          setInitalData(res?.data);
+        }
+      });
+    },
+    [lang]
+  );
 
   return (
     <>
@@ -173,7 +180,7 @@ interface IinitialData {
                             >
                               {tag.tag}
                             </a>
-                            {index != data?.tags.length - 1 ? (
+                            {index != data?.tags?.length - 1 ? (
                               <span>,&nbsp;</span>
                             ) : null}
                           </span>
@@ -191,5 +198,4 @@ interface IinitialData {
   );
 };
 
-
-export default  InsightsPage
+export default InsightsPage;

@@ -7,6 +7,7 @@ export default function handler(
   res: NextApiResponse<any>
 ) {
   let id = req.query["id"] as string;
+  if (!id) res.status(404).send({});
   MongoClient.connect(url, function async(err, db) {
     if (err) throw err;
     let dbo = db?.db("runoob")?.collection("site");

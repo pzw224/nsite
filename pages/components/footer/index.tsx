@@ -5,7 +5,7 @@ const Footer = () => {
                 <div className="row">
                     <div className="col-lg-3 col-md-4 col-sm-12">
                         <div className="footer-logo">
-                            <img src="/assets/img/zh-hans-logo.286dc06b.jpg" className="attachment-full size-full" />
+                            {/* <img src="/assets/img/zh-hans-logo.286dc06b.jpg" className="attachment-full size-full" /> */}
                         </div>
                         <div className="footer-tagline">
                             <p>汇聚专业洞见 助力卓越决策</p>
@@ -278,7 +278,7 @@ const Footer = () => {
                     </div>
                     <div className="footer-social col-lg-2 col-md-12 col-sm-12">
                         <div>
-                            <a target="_blank" href="https://www.linkedin.com/company/glg" title="LinkedIn" className="footer-social-icon">
+                            {/* <a target="_blank" href="https://www.linkedin.com/company/glg" title="LinkedIn" className="footer-social-icon">
                                 <img src="https://assets.glginsights.com/wp-content/uploads/2019/10/linkedin-in.svg" alt="LinkedIn" />
                             </a>
                             <a target="_blank" href="https://www.youtube.com/user/GLGit" title="Youtube" className="footer-social-icon">
@@ -298,16 +298,16 @@ const Footer = () => {
                             </a>
                             <a target="_blank" href="https://i.youku.com/glgchina" title="Youku" className="footer-social-icon">
                                 <img src="https://assets.glginsights.com/wp-content/uploads/2019/11/youku.svg" alt="Youku" />
-                            </a>
+                            </a> */}
                         </div>
                         <div className="footer-social-additional long-form-text">
-                            <p>
+                            {/* <p>
                                 <strong>关注我们的微信公众号</strong>
                                 <br />
                                 <strong>GLG格理</strong>
                                 <br />
                                 <img src="/assets/img/qr-wechat.36b9ec81.jpg" width="258" height="258" className="alignnone size-full wp-image-14311" />
-                            </p>
+                            </p> */}
                         </div>
                     </div>
                 </div>
