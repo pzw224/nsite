@@ -2,11 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { getInitialData } from "../../../common/browserapi/insights";
 
-// async function getInitialData(query: any) {
-//   let data = await fetch("/api/insightsList", query);
-//   return data.json();
-// }
-
 interface IinitialData {
   _id: string;
   pic: string;
@@ -16,14 +11,39 @@ interface IinitialData {
   tags: Array<{ tag: string; filter: string }>;
 }
 
-const InsightsPage: React.FC = () => {
+const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
   const [selectClass, setSelectClass] = useState("");
   const [initialData, setInitalData] = useState([] as any);
   const router = useRouter();
   const { lang } = router.query;
+  let typeN = "全部";
+  switch (props.type) {
+    case "articles":
+      typeN = "文章";
+      break;
+    case "case-studies":
+      typeN = "案例研究";
+      break;
+    // case "videos":
+    //   typeN = "视频";
+    //   break;
+    case "whitepapers":
+      typeN = "白皮书";
+      break;
+    case "podcasts":
+      typeN = "播客";
+      break;
+    default:
+      typeN = "全部";
+      break;
+  }
+
   useEffect(
     function () {
-      getInitialData({ lang: lang }).then((res) => {
+      let type = props.type ?? "";
+      getInitialData(
+        Object.assign({ lang: lang ?? "cn" }, type ? { type } : {})
+      ).then((res) => {
         if (res && res?.data) {
           setInitalData(res?.data);
         }
@@ -65,7 +85,7 @@ const InsightsPage: React.FC = () => {
               }}
               className="insight-type-select-display"
             >
-              按洞见类型 全部
+              {`按洞见类型 ${typeN}`}
               <svg
                 aria-hidden="true"
                 focusable="false"
@@ -105,7 +125,7 @@ const InsightsPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <form role="search" method="get" className="filter-search">
+        {/* <form role="search" method="get" className="filter-search">
           <button
             type="submit"
             title="Search Insights"
@@ -139,7 +159,7 @@ const InsightsPage: React.FC = () => {
           <div className="filter-search-results">
             <span className="filter-search-no-results">No Search Results</span>
           </div>
-        </form>
+        </form> */}
       </div>
       <div className="post-archive-content">
         <div className="post-archive-list">

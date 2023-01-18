@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getInitialPage } from "../../../../../common/browserapi/pageApi";
 
 /* eslint-disable @next/next/no-html-link-for-pages */
 const Header = (props: any) => {
@@ -7,6 +8,15 @@ const Header = (props: any) => {
   const [langs, setLang] = useState(false);
   const router = useRouter();
   const { lang } = router.query;
+  const [pageData, setPageData] = useState([]);
+
+  useEffect(() => {
+    getInitialPage({ lang: lang ?? "cn" }).then((res) => {
+      if (res && res.data) {
+        setPageData(res.data);
+      }
+    });
+  }, [lang]);
   return (
     <header id="masthead" className={mastheadClass}>
       <div className="header-menu-overlay header-menu-overlay--primary"></div>
@@ -15,32 +25,40 @@ const Header = (props: any) => {
         <div className="header-wrap">
           <div className="header-logo">
             <a href="/">
-              <img src="/assets/img/zh-hans-logo-white.781e2926.svg" alt="" />
+              {/* <img src="/assets/img/zh-hans-logo-white.781e2926.svg" alt="" /> */}
             </a>
           </div>
-          <ul id="menu-header-main" className="header-menu header-menu-primary">
+          {pageData?.map((data: any) => {
+            let path = "";
+            switch (data?.path) {
+              case "articles":
+              case "case-studies":
+              case "podcasts":
+              case "videos":
+              case "whitepapers":
+                path = "/" + data?.path + "?id=" + data?._id;
+                break;
+              default:
+                path = "/menu/" + data?.path + "?id=" + data?._id;
+                break;
+            }
+            return (
+              <ul key={data?._id} className="header-menu header-menu-primary">
+                <li className="header-menu-item header-menu-item-23505 menu-item-depth--0 header-menu-item--has-children">
+                  <a href={path} className="header-menu-link">
+                    <span>{data?.menuName}</span>
+                  </a>
+                </li>
+              </ul>
+            );
+          })}
+          {/* <ul id="menu-header-main" className="header-menu header-menu-primary">
             <li
               id="menu-item-23505"
               className="header-menu-item header-menu-item-23505 menu-item-depth--0 header-menu-item--has-children"
             >
               <button className="header-menu-link">
                 <span>服务内容</span>
-              </button>
-              <button type="button" className="header-menu-expand">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 448 512"
-                  className="icon icon--plus"
-                >
-                  <path d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
-                </svg>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 448 512"
-                  className="icon icon--minus"
-                >
-                  <path d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
-                </svg>
               </button>
               <div className="header-sub-menu">
                 <ul className="header-sub-menu-column">
@@ -375,7 +393,7 @@ const Header = (props: any) => {
                 </ul>
               </div>
             </li>
-          </ul>
+          </ul> */}
           <ul
             style={{ background: "#0f122b" }}
             id="menu-header-right"

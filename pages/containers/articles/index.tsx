@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { insightsDetail } from "../../../common/browserapi/insights";
 import { useRouter } from "next/router";
 
-const Article: React.FC = () => {
+const Article: React.FC<any> = (props: any) => {
   const router = useRouter();
   const { id } = router.query;
   const [articleInfo, setArticleInfo] = useState({} as any);
@@ -39,8 +39,11 @@ const Article: React.FC = () => {
                   Insights
                 </a>
                 <span className="insight-breadcrumb-separator">/</span>
-                <a href="/articles/" className="insight-breadcrumb-link">
-                  Articles
+                <a
+                  href={`/${props?.type}/`}
+                  className="insight-breadcrumb-link"
+                >
+                  {`${props?.type}`}
                 </a>
               </div>
               <div className="insight-share"></div>

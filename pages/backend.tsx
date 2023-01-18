@@ -3,8 +3,9 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UploadOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
+  ApartmentOutlined,
+  AlignCenterOutlined,
+  AuditOutlined,
 } from "@ant-design/icons";
 import { Button, Col, Layout, Menu, Modal, Row, theme } from "antd";
 import BackendPage from "./containers/backend";
@@ -15,15 +16,12 @@ export default function Backend(props: any) {
     token: { colorBgContainer },
   } = theme.useToken();
   const menu = [
-    {
-      key: "1",
-      icon: <UserOutlined />,
-      label: "页面管理",
-    },
+    { key: "0", icon: <AuditOutlined />, label: "模板管理" },
+    { key: "1", icon: <AuditOutlined />, label: "子模板管理" },
     {
       key: "2",
-      icon: <VideoCameraOutlined />,
-      label: "菜单管理",
+      icon: <ApartmentOutlined />,
+      label: "页面管理",
     },
     {
       key: "3",

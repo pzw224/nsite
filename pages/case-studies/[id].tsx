@@ -4,11 +4,11 @@ import Template from "../components/templates/template";
 import Article from "../containers/articles/index";
 
 @MasterPage(Template, {})
-export default class Articles extends React.Component {
+export default class CaseStudies extends React.Component {
   render() {
     return (
       <div className="site-content layout-full">
-        <Article type="articles" />
+        <Article type="case-studies" />
       </div>
     );
   }

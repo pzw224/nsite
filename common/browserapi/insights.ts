@@ -1,7 +1,15 @@
 async function getInitialData(query: any) {
-  let data = await fetch(
-    `/api/insightsList?lang=${query?.lang ?? "cn"}&page=${query?.pageIndex}`
-  );
+  let queryString = "";
+  if (query) {
+    for (let key in query) {
+      queryString += `&${key}=${query[key]}`;
+    }
+  }
+  if (queryString) {
+    queryString = queryString.substring(1);
+  }
+
+  let data = await fetch(`/api/insightsList?${queryString}`);
   return data.json();
 }
 

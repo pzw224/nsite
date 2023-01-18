@@ -6,15 +6,20 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  let pageIndex = (req?.query?.page as unknown as number) ?? 1;
-  let pageSize = (req?.query.size as unknown as number) ?? 10;
+  let pageIndex = Number.isNaN(Number(req?.query?.page))
+    ? 1
+    : Number(req?.query?.page);
+  let pageSize = Number.isNaN(Number(req?.query?.size))
+    ? 10
+    : Number(req?.query?.size);
   MongoClient.connect(url, async function (err, db) {
     if (err) throw err;
     const lang = req.query.lang ?? "cn";
     let dbo = db?.db("runoob")?.collection("site");
     let totalCount = await dbo?.find({ lang: lang }).count();
+    let type = req.query.type ?? "";
     dbo
-      ?.find({ lang: lang })
+      ?.find(Object.assign({ lang: lang }, type ? { type } : {}))
       .limit(pageSize)
       .skip((pageIndex - 1) * pageSize)
       .sort({ _id: -1 })
