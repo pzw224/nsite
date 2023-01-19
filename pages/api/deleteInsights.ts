@@ -14,7 +14,6 @@ export default function handler(
       var whereStr = { _id: new ObjectID(id) }; // 查询条件
       dbo?.collection("site").deleteOne(whereStr, function (err, obj) {
         if (err) throw err;
-        console.log("文档删除成功");
         db?.close();
         res.status(200).json({ data: "done" });
       });

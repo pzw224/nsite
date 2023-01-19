@@ -71,7 +71,6 @@ export default function ModuleManage() {
     let formData = form.getFieldsValue(true);
     if (action == modalType.add) {
       addModule(formData).then((res) => {
-        console.log(JSON.stringify(res));
         if (res) {
           setDataSource({
             data: [{ _id: res.insertedId, ...formData }, ...dataSource.data],

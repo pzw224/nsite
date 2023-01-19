@@ -21,7 +21,6 @@ export default function handler(
           { $set: updateInfo },
           function (err: any, obj: any) {
             if (err) throw err;
-            console.log("文档更新成功");
             db?.close();
             res.status(200).json({ data: "done" });
           }

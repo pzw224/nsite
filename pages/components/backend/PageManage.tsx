@@ -20,6 +20,7 @@ import {
   Pagination,
   Upload,
   UploadProps,
+  Switch,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
@@ -61,6 +62,8 @@ export default function PageManage() {
   const [action, setAction] = useState(modalType.add);
   const [loading, setLoading] = useState(false);
   const [moduleList, setModuleList] = useState([]);
+  const [parentMenu, setParentMenu] = useState([]);
+  const [parentMenuEnable, setParentMenuEnable] = useState(true);
 
   const [form] = Form.useForm();
 
@@ -68,9 +71,15 @@ export default function PageManage() {
 
   const updateModal = (id: any) => {
     setAction(modalType.edit);
+    form.resetFields();
     pageDetail(id).then((res) => {
       if (res) {
         form.setFieldsValue(res?.data);
+        if (!res?.data?.isTop) {
+          setParentMenuEnable(false);
+        } else {
+          setParentMenuEnable(true);
+        }
       }
       setOpen(true);
     });
@@ -130,8 +139,17 @@ export default function PageManage() {
   useEffect(() => {
     getInitialPage({ page: pageIndex }).then((res) => {
       if (res) {
-        console.log(JSON.stringify(res));
         setDataSource(res);
+        let pm = res?.data
+          ?.filter((d: any) => {
+            return d.isTop == true;
+          })
+          .map((o: any) => {
+            return { value: o._id, label: o.menuName };
+          });
+        if (pm) {
+          setParentMenu(pm);
+        }
       }
     });
     getInitialData({ page: 1, size: 30 }).then((res) => {
@@ -274,7 +292,14 @@ export default function PageManage() {
               onValuesChange={(values) => {
                 const changKey = Object.keys(values)?.[0];
                 const changValue = Object.values(values)?.[0] as any;
-                if (changKey == "moduleList") {
+                if (changKey == "isTop") {
+                  if (!changValue) {
+                    setParentMenuEnable(false);
+                  } else {
+                    setParentMenuEnable(true);
+                  }
+                  form.setFieldValue(changKey, changValue);
+                } else if (changKey == "moduleList") {
                   let finalValue = changValue?.map(
                     (data: any, sortby: number) => {
                       return Object.assign(data, {
@@ -302,6 +327,28 @@ export default function PageManage() {
                 </Select>
               </Form.Item>
               <Form.Item
+                name="isTop"
+                label="顶级菜单"
+                valuePropName="checked"
+                shouldUpdate
+              >
+                <Switch defaultChecked />
+              </Form.Item>
+              <Form.Item
+                shouldUpdate
+                name="parentMenu"
+                label="父菜单"
+                // rules={[{ required: true, message: "必须选择父菜单" }]}
+              >
+                <Select
+                  disabled={parentMenuEnable}
+                  style={{ width: "200px" }}
+                  placeholder="父菜单"
+                  labelInValue={true}
+                  options={parentMenu}
+                />
+              </Form.Item>
+              <Form.Item
                 name="menuName"
                 label="菜单名"
                 rules={[{ required: true, message: "必须填写菜单" }]}
@@ -311,7 +358,12 @@ export default function PageManage() {
               <Form.Item
                 name="path"
                 label="路由"
-                rules={[{ required: true, message: "必须填写路由" }]}
+                rules={[
+                  {
+                    pattern: new RegExp("[a-z]+"),
+                    message: "必须是a-z 的字母",
+                  },
+                ]}
               >
                 <Input />
               </Form.Item>
@@ -321,11 +373,7 @@ export default function PageManage() {
               <Form.Item name="pageDescription" label="描述">
                 <Input />
               </Form.Item>
-              <Form.Item
-                name="moduleList"
-                label="模板"
-                rules={[{ required: true, message: "必须选择模板" }]}
-              >
+              <Form.Item name="moduleList" label="模板">
                 <Select
                   mode="multiple"
                   style={{ width: "200px" }}

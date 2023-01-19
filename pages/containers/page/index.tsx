@@ -21,40 +21,43 @@ const PageInfo: React.FC<any> = (props: any) => {
   const { id, lang = "cn" } = router.query;
   const [pageData, setPageData] = useState<any>();
   useEffect(() => {
-    getPageInfo({ id: id, lang: lang }).then(async (res) => {
-      if (res && res.data) {
-        let finalData = res?.data;
-        let finalModule = res?.data?.finalModule;
-        finalData.finalModule = finalModule?.map((f: any) => {
-          let newF = f;
-          res?.data?.moduleList?.forEach((m: any) => {
-            if (m?.value == f?.id) {
-              newF.sortby = m.sortby;
-            }
+    getPageInfo(Object.assign(id ? { id: id } : {}, { lang: lang })).then(
+      async (res) => {
+        if (res && res.data) {
+          let finalData = res?.data;
+          let finalModule = res?.data?.finalModule;
+          finalData.finalModule = finalModule?.map((f: any) => {
+            let newF = f;
+            res?.data?.moduleList?.forEach((m: any) => {
+              if (m?.value == f?.id) {
+                newF.sortby = m.sortby;
+              }
+            });
+            return newF;
           });
-          return newF;
-        });
-        if (finalModule?.findIndex((x: any) => x.type == "articles") >= 0) {
-          finalData.articles = await getInitialData({
-            lang: lang,
-            page: 1,
-            size: 3,
-            type: "articles",
-          });
+          if (finalModule?.findIndex((x: any) => x.type == "articles") >= 0) {
+            finalData.articles = await getInitialData({
+              lang: lang,
+              page: 1,
+              size: 3,
+              type: "articles",
+            });
+          }
+          if (
+            finalModule?.findIndex((x: any) => x.type == "case-studies") >= 0
+          ) {
+            finalData.caseStudies = await getInitialData({
+              lang: lang,
+              page: 1,
+              size: 3,
+              type: "case-studies",
+            });
+          }
+          finalData?.finalModule?.sort((a: any, b: any) => a.sortby - b.sortby);
+          setPageData(finalData);
         }
-        if (finalModule?.findIndex((x: any) => x.type == "case-studies") >= 0) {
-          finalData.caseStudies = await getInitialData({
-            lang: lang,
-            page: 1,
-            size: 3,
-            type: "case-studies",
-          });
-        }
-        finalData?.finalModule?.sort((a: any, b: any) => a.sortby - b.sortby);
-        console.log(JSON.stringify(finalData?.articles))
-        setPageData(finalData);
       }
-    });
+    );
   }, [id]);
   return (
     <main className="site-main">

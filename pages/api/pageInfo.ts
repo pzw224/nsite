@@ -6,12 +6,14 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  let id = req.query["id"] as string;
-  if (!id) res.status(404).send({});
   MongoClient.connect(url, async function (err, db) {
     if (err) throw err;
     let dbo = db?.db("runoob")?.collection("page");
-    var whereStr = { _id: new ObjectID(id) }; // 查询条件
+    var whereStr = Object.assign(
+      req.query["id"]
+        ? { _id: new ObjectID(req.query["id"] as string) }
+        : { path: "home" }
+    ); // 查询条件
     let pageInfo = await dbo?.findOne(whereStr);
     if (pageInfo && pageInfo.moduleList) {
       let finalModule = await db

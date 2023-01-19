@@ -6,20 +6,56 @@ import { getInitialPage } from "../../../../../common/browserapi/pageApi";
 const Header = (props: any) => {
   const { mastheadClass = "" } = props; //masthead--transparent
   const [langs, setLang] = useState(false);
-  const router = useRouter();
-  const { lang } = router.query;
-  const [pageData, setPageData] = useState([]);
+  const pageData = props?.pageData;
+  const [menuStatus, setMenuStatus] = useState({ status: false, index: -1 });
 
-  useEffect(() => {
-    getInitialPage({ lang: lang ?? "cn" }).then((res) => {
-      if (res && res.data) {
-        setPageData(res.data);
-      }
-    });
-  }, [lang]);
+  // useEffect(() => {
+  //   getInitialPage({ lang: lang ?? "cn" }).then((res) => {
+  //     if (res && res.data) {
+  //       setPageData(res.data);
+  //     }
+  //   });
+  // }, [lang]);
+
+  function commonPath(data: any) {
+    if (!data || !data?.path) return "";
+    let path = "";
+    switch (data?.path) {
+      case "articles":
+      case "case-studies":
+      case "podcasts":
+      case "videos":
+      case "whitepapers":
+        path = "/" + data?.path + "?id=" + data?._id;
+        break;
+      case "home":
+        path = "/";
+        break;
+      default:
+        path = "/menu/" + data?.path + "?id=" + data?._id;
+        break;
+    }
+    return path;
+  }
+
   return (
-    <header id="masthead" className={mastheadClass}>
-      <div className="header-menu-overlay header-menu-overlay--primary"></div>
+    <header
+      id="masthead"
+      className={
+        mastheadClass +
+        ` ${langs ? " open--secondary" : ""} 
+        ${menuStatus?.status ? " open--primary" : ""}`
+      }
+    >
+      <div
+        className="header-menu-overlay header-menu-overlay--primary"
+        onMouseLeave={() => {
+          setMenuStatus({
+            status: false,
+            index: -1,
+          });
+        }}
+      ></div>
       <div className="page-container">
         <div className="header-menu-overlay header-menu-overlay--secondary"></div>
         <div className="header-wrap">
@@ -28,30 +64,81 @@ const Header = (props: any) => {
               {/* <img src="/assets/img/zh-hans-logo-white.781e2926.svg" alt="" /> */}
             </a>
           </div>
-          {pageData?.map((data: any) => {
-            let path = "";
-            switch (data?.path) {
-              case "articles":
-              case "case-studies":
-              case "podcasts":
-              case "videos":
-              case "whitepapers":
-                path = "/" + data?.path + "?id=" + data?._id;
-                break;
-              default:
-                path = "/menu/" + data?.path + "?id=" + data?._id;
-                break;
-            }
-            return (
-              <ul key={data?._id} className="header-menu header-menu-primary">
-                <li className="header-menu-item header-menu-item-23505 menu-item-depth--0 header-menu-item--has-children">
-                  <a href={path} className="header-menu-link">
-                    <span>{data?.menuName}</span>
-                  </a>
-                </li>
-              </ul>
-            );
-          })}
+          <ul className="header-menu header-menu-primary">
+            {pageData
+              ?.filter((x: any) => x.isTop)
+              .map((data: any, parentIndex: number) => {
+                let path = commonPath(data);
+                let hasChildren =
+                  data?.isTop &&
+                  pageData?.findIndex(
+                    (f: any) => f?.parentMenu?.value == data._id
+                  ) >= 0;
+
+                if (hasChildren) {
+                  let childMenu = pageData?.filter(
+                    (f: any) => f?.parentMenu?.value == data._id
+                  );
+                  let ceilValue = Math.ceil(childMenu?.length / 3);
+                  let childData = [];
+                  for (let i = 0; i < ceilValue; i++) {
+                    childData.push(childMenu?.slice(3 * i, 3 * (i + 1)));
+                  }
+                  return (
+                    <li
+                      key={data?._id}
+                      onMouseEnter={() => {
+                        setMenuStatus({ status: true, index: parentIndex });
+                      }}
+                      className={`header-menu-item header-menu-item-23505 menu-item-depth--0 header-menu-item--has-children ${
+                        menuStatus?.index == parentIndex ? "active" : ""
+                      }`}
+                    >
+                      <button className="header-menu-link">
+                        <span>{data?.menuName}</span>
+                      </button>
+                      <div className="header-sub-menu">
+                        {childData?.map((c: any, cIndex: number) => {
+                          return (
+                            <ul
+                              key={`ul${cIndex}`}
+                              className="header-sub-menu-column"
+                            >
+                              {c?.map((d: any, dindex: number) => {
+                                return (
+                                  <li
+                                    key={`li${dindex}`}
+                                    className="header-menu-item header-menu-item-23506 menu-item-depth--1"
+                                  >
+                                    <a
+                                      href={commonPath(d)}
+                                      className="header-menu-link"
+                                    >
+                                      <span>{d?.menuName}</span>
+                                    </a>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          );
+                        })}
+                      </div>
+                    </li>
+                  );
+                } else {
+                  return (
+                    <li
+                      key={data?._id}
+                      className="header-menu-item header-menu-item-23517 menu-item-depth--0"
+                    >
+                      <a href={path} className="header-menu-link">
+                        <span>{data?.menuName}</span>
+                      </a>
+                    </li>
+                  );
+                }
+              })}
+          </ul>
           {/* <ul id="menu-header-main" className="header-menu header-menu-primary">
             <li
               id="menu-item-23505"
@@ -395,10 +482,10 @@ const Header = (props: any) => {
             </li>
           </ul> */}
           <ul
-            style={{ background: "#0f122b" }}
             id="menu-header-right"
             className="header-menu header-menu-secondary"
           >
+            <li className="header-menu-item header-menu-item-10835 menu-item-depth--0 header-menu-item--has-children"></li>
             <li
               id="menu-item-10834"
               className={`header-menu-item header-menu-item-10834 menu-item-depth--0 ${

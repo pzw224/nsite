@@ -65,7 +65,6 @@ export default function handler(
     // var myobj = { name: "菜鸟教程", url: "www.runoob" };
     dbo?.collection("site").insertMany(arrs, function (err: any, res: any) {
       if (err) throw err;
-      console.log("文档插入成功");
       db?.close();
     });
   });

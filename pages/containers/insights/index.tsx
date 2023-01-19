@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { getInitialData } from "../../../common/browserapi/insights";
+import { Pagenation } from "./components/pagenation";
+import { Pagination } from "antd";
 
 interface IinitialData {
   _id: string;
@@ -13,9 +15,11 @@ interface IinitialData {
 
 const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
   const [selectClass, setSelectClass] = useState("");
+  const [pageIndex, SetPageIndex] = useState(1);
   const [initialData, setInitalData] = useState([] as any);
+  const [total, setTotal] = useState(0);
   const router = useRouter();
-  const { lang } = router.query;
+  const { lang, page = 1, size = 10 } = router.query;
   let typeN = "全部";
   switch (props.type) {
     case "articles":
@@ -42,14 +46,18 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
     function () {
       let type = props.type ?? "";
       getInitialData(
-        Object.assign({ lang: lang ?? "cn" }, type ? { type } : {})
+        Object.assign(
+          { lang: lang ?? "cn", page: pageIndex, size: size },
+          type ? { type } : {}
+        )
       ).then((res) => {
         if (res && res?.data) {
           setInitalData(res?.data);
+          setTotal(res?.total);
         }
       });
     },
-    [lang]
+    [lang, pageIndex]
   );
 
   return (
@@ -57,11 +65,11 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
       <div>
         <div className="insights-archive-banner">
           <h1 className="insights-archive-banner-title">专家洞见</h1>
-          <p className="insights-archive-banner-subtitle">
-            GLG的专家团拥有约 100 万名成员，涵盖所有主要行业与地区的意见领袖。
+          {/* <p className="insights-archive-banner-subtitle">
+            的专家团拥有约 100 万名成员，涵盖所有主要行业与地区的意见领袖。
             <br />
             在此可浏览部分专家的观点。
-          </p>
+          </p> */}
         </div>
       </div>
       <div className="block-accent"></div>
@@ -195,7 +203,8 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
                         return (
                           <span key={tag.tag + index}>
                             <a
-                              href={`/${data.type}/${tag.filter}`}
+                              href="#"
+                              // href={`/${data.type}/${tag.filter}`}
                               className="insights-list-item-tag"
                             >
                               {tag.tag}
@@ -212,6 +221,17 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
               </div>
             );
           })}
+        </div>
+        <div className="pagination">
+          <Pagination
+            defaultCurrent={1}
+            current={pageIndex}
+            pageSize={10}
+            total={total}
+            onChange={(page, pageSize) => {
+              SetPageIndex(page);
+            }}
+          />
         </div>
       </div>
     </>

@@ -4,6 +4,7 @@ import Footer from "./components/footer";
 // import styles from '../styles/Home.module.css'
 import HomePage from "./containers/home";
 import Header from "./containers/home/components/header";
+import { PageInfo } from "./containers/page";
 
 export default function Home() {
   return (
@@ -14,8 +15,10 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header mastheadClass="masthead--transparent" />
-
       <div className="site-content layout-full">
+        <PageInfo />
+      </div>
+      {/* <div className="site-content layout-full">
         <div className="page-container">
           <main className="site-main">
             <div className="page-content">
@@ -23,7 +26,7 @@ export default function Home() {
             </div>
           </main>
         </div>
-      </div>
+      </div> */}
 
       <Footer />
     </div>
