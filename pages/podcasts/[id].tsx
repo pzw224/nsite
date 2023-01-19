@@ -1,7 +1,7 @@
 import * as React from "react";
-import MasterPage from "../components/templates/masterpage";
-import Template from "../components/templates/template";
-import Article from "../containers/articles/index";
+import MasterPage from "../../common/components/templates/masterpage";
+import Template from "../../common/components/templates/template";
+import Article from "../../common/containers/articles/index";
 
 @MasterPage(Template, {})
 export default class Podcasts extends React.Component {

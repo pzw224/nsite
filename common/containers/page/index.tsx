@@ -14,7 +14,7 @@ import {
   FundProjectionScreenOutlined,
 } from "@ant-design/icons";
 import { getInitialData } from "../../../common/browserapi/insights";
-import { SwiperInsights } from "../home/components/insights/swiperInsights";
+import SwiperInsights from "../home/components/insights/swiperInsights";
 
 const PageInfo: React.FC<any> = (props: any) => {
   const router = useRouter();
@@ -242,4 +242,4 @@ const PageInfo: React.FC<any> = (props: any) => {
   );
 };
 
-export { PageInfo };
+export default PageInfo;

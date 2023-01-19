@@ -89,4 +89,4 @@ const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
   );
 };
 
-export { SwiperInsights };
+export default SwiperInsights;

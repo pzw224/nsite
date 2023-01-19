@@ -15,13 +15,7 @@ import {
   UploadProps,
 } from "antd";
 import { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
-import {
-  getInitialData,
-  insightsDetail,
-  deleteInsight,
-  updateInsight,
-  addInsight,
-} from "../../../common/browserapi/insights";
+import { updateInsight, addInsight } from "../../../common/browserapi/insights";
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
   reader.addEventListener("load", () => callback(reader.result as string));
@@ -29,7 +23,10 @@ const getBase64 = (img: RcFile, callback: (url: string) => void) => {
 };
 
 const beforeUpload = (file: RcFile) => {
-  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/jpg" || file.type === "image/png";
+  const isJpgOrPng =
+    file.type === "image/jpeg" ||
+    file.type === "image/jpg" ||
+    file.type === "image/png";
   if (!isJpgOrPng) {
     message.error("You can only upload JPG/PNG file!");
   }
@@ -65,9 +62,14 @@ const FormModal = (props: any): any => {
   const [messageApi, contextHolder] = message.useMessage();
   const [editor, setEditor]: [any, any] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isBrowser, setIsBrowser] = useState(false);
   let editorjs = require("@wangeditor/editor-for-react");
   let Editor = editorjs.Editor;
   let Toolbar = editorjs.Toolbar;
+
+  useEffect(() => {
+    setIsBrowser(true);
+  }, []);
 
   // 及时销毁 editor ，重要！
   useEffect(() => {
@@ -259,30 +261,32 @@ const FormModal = (props: any): any => {
               )}
             </Upload>
           </Form.Item>
-          <Form.Item name={"htmlContent"}>
-            <>
-              <Toolbar
-                editor={editor}
-                defaultConfig={toolbarConfig}
-                mode="default"
-                style={{ borderBottom: "1px solid #ccc" }}
-              />
-              <Editor
-                defaultConfig={editorConfig}
-                value={form.getFieldValue("htmlContent")}
-                onCreated={setEditor}
-                onChange={(editor: { getHtml: () => any }) => {
-                  form.setFieldValue("htmlContent", editor.getHtml());
-                }}
-                mode="default"
-                style={{ height: "100px", overflowY: "hidden" }}
-              />
-            </>
-          </Form.Item>
+          {isBrowser ? (
+            <Form.Item name={"htmlContent"}>
+              <>
+                <Toolbar
+                  editor={editor}
+                  defaultConfig={toolbarConfig}
+                  mode="default"
+                  style={{ borderBottom: "1px solid #ccc" }}
+                />
+                <Editor
+                  defaultConfig={editorConfig}
+                  value={form.getFieldValue("htmlContent")}
+                  onCreated={setEditor}
+                  onChange={(editor: { getHtml: () => any }) => {
+                    form.setFieldValue("htmlContent", editor.getHtml());
+                  }}
+                  mode="default"
+                  style={{ height: "100px", overflowY: "hidden" }}
+                />
+              </>
+            </Form.Item>
+          ) : null}
         </Form>
       </Modal>
     </>
   );
 };
 
-export { FormModal };
+export default FormModal;

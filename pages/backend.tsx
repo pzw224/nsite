@@ -8,7 +8,7 @@ import {
   AuditOutlined,
 } from "@ant-design/icons";
 import { Button, Col, Layout, Menu, Modal, Row, theme } from "antd";
-import BackendPage from "./containers/backend";
+import BackendPage from "../common/containers/backend";
 
 export default function Backend(props: any) {
   const { Sider, Header, Content } = Layout;

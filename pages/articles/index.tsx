@@ -1,7 +1,7 @@
 import React from "react";
-import MasterPage from "../components/templates/masterpage";
-import Template from "../components/templates/template";
-import InsightsPage from "../containers/insights";
+import MasterPage from "../../common/components/templates/masterpage";
+import Template from "../../common/components/templates/template";
+import InsightsPage from "../../common/containers/insights";
 
 @MasterPage(Template, {})
 export default class Articles extends React.Component {

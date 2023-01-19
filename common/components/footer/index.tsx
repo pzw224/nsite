@@ -1,3 +1,5 @@
+import { commonPath } from "../../interface";
+
 const Footer = (props: any) => {
   let { pageData } = props;
   let childMenu = pageData?.filter((c: any) => !c?.isTop);
@@ -24,7 +26,7 @@ const Footer = (props: any) => {
                           key={`cm${index}`}
                           className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link"
                         >
-                          <a href={c?.path}>
+                          <a href={commonPath(c)}>
                             <span>{c?.menuName}</span>
                             <span className="menu-expand"></span>
                           </a>
