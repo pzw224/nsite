@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -9,6 +9,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Col, Layout, Menu, Modal, Row, theme } from "antd";
 import BackendPage from "../common/containers/backend";
+import { useRouter } from "next/router";
 
 export default function Backend(props: any) {
   const { Sider, Header, Content } = Layout;
@@ -31,6 +32,14 @@ export default function Backend(props: any) {
   ];
   const [selectData, setSelectData] = useState("1");
   const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    let value = sessionStorage.getItem("login");
+    if (!value) {
+      window.location.href =
+        window.location.protocol + "//" + window.location.host + "/login";
+    }
+  }, []);
   return (
     <Layout>
       <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -38,7 +47,7 @@ export default function Backend(props: any) {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          defaultSelectedKeys={["0"]}
           onSelect={(item) => {
             setSelectData(item.key);
           }}
