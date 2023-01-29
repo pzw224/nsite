@@ -6,8 +6,9 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  if (!req.body?.title) {
+  if (!req.body?.pageTitle) {
     res.status(200).json({ data: "添加失败" });
+    return;
   }
   if (req.method == "POST") {
     MongoClient.connect(url, function (err, db) {

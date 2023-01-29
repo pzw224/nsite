@@ -37,6 +37,7 @@ const Header = (props: any) => {
           </div>
           <ul className="header-menu header-menu-primary">
             {pageData
+              ?.sort((a: any, b: any) => b.priority - a.priority)
               ?.filter((x: any) => x.isTop)
               .map((data: any, parentIndex: number) => {
                 let path = commonPath(data);
@@ -75,21 +76,25 @@ const Header = (props: any) => {
                               key={`ul${cIndex}`}
                               className="header-sub-menu-column"
                             >
-                              {c?.map((d: any, dindex: number) => {
-                                return (
-                                  <li
-                                    key={`li${dindex}`}
-                                    className="header-menu-item header-menu-item-23506 menu-item-depth--1"
-                                  >
-                                    <a
-                                      href={commonPath(d)}
-                                      className="header-menu-link"
+                              {c
+                                ?.sort(
+                                  (a: any, b: any) => b?.priority - a?.priority
+                                )
+                                .map((d: any, dindex: number) => {
+                                  return (
+                                    <li
+                                      key={`li${dindex}`}
+                                      className="header-menu-item header-menu-item-23506 menu-item-depth--1"
                                     >
-                                      <span>{d?.menuName}</span>
-                                    </a>
-                                  </li>
-                                );
-                              })}
+                                      <a
+                                        href={commonPath(d)}
+                                        className="header-menu-link"
+                                      >
+                                        <span>{d?.menuName}</span>
+                                      </a>
+                                    </li>
+                                  );
+                                })}
                             </ul>
                           );
                         })}

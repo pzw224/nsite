@@ -104,6 +104,10 @@ export default function PageManage() {
     let formData = form.getFieldsValue(true);
     if (action == modalType.add) {
       addPage(formData).then((res) => {
+        if (res && res.data == "添加失败") {
+          message.error("添加失败");
+          return;
+        }
         if (res) {
           setDataSource({
             data: [{ _id: res.insertedId, ...formData }, ...dataSource.data],
@@ -354,6 +358,15 @@ export default function PageManage() {
                 rules={[{ required: true, message: "必须填写菜单" }]}
               >
                 <Input />
+              </Form.Item>
+              <Form.Item name="priority" label="优先级">
+                <Select defaultValue={"0"}>
+                  <Option value="0">低</Option>
+                  <Option value="1">略低</Option>
+                  <Option value="2">中</Option>
+                  <Option value="3">略高</Option>
+                  <Option value="4">最高</Option>
+                </Select>
               </Form.Item>
               <Form.Item
                 name="path"

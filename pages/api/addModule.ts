@@ -6,7 +6,7 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  if (!req.body?.title) {
+  if (!req.body?.moduleName) {
     res.status(200).json({ data: "添加失败" });
   }
   if (req.method == "POST") {

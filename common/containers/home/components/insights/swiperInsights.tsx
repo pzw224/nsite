@@ -29,6 +29,7 @@ const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
             {data?.map((d: any, index: number) => {
               return (
                 <div
+                key={index}
                   className={`case-studies-slider-content-item ${
                     slidePage == index ? "active" : ""
                   }`}
