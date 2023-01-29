@@ -334,7 +334,7 @@ export default function PageManage() {
                 name="isTop"
                 label="顶级菜单"
                 valuePropName="checked"
-                shouldUpdate
+                initialValue={true}
               >
                 <Switch defaultChecked />
               </Form.Item>
@@ -359,8 +359,8 @@ export default function PageManage() {
               >
                 <Input />
               </Form.Item>
-              <Form.Item name="priority" label="优先级">
-                <Select defaultValue={"0"}>
+              <Form.Item name="priority" label="优先级" initialValue={"0"}>
+                <Select>
                   <Option value="0">低</Option>
                   <Option value="1">略低</Option>
                   <Option value="2">中</Option>
@@ -399,6 +399,7 @@ export default function PageManage() {
                 name="background"
                 label="背景图"
                 wrapperCol={{ span: 24 }}
+                shouldUpdate={true}
               >
                 <Upload
                   method="POST"

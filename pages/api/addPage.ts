@@ -6,7 +6,7 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  if (!req.body?.pageTitle) {
+  if (!req.body?.menuName) {
     res.status(200).json({ data: "添加失败" });
     return;
   }
