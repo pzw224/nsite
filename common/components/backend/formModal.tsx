@@ -16,6 +16,7 @@ import {
 } from "antd";
 import { RcFile, UploadChangeParam, UploadFile } from "antd/es/upload";
 import { updateInsight, addInsight } from "../../../common/browserapi/insights";
+
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
   reader.addEventListener("load", () => callback(reader.result as string));
@@ -59,7 +60,7 @@ const typeInfo: any = {
 const FormModal = (props: any): any => {
   let { form, setOpen, open, setDataSource, dataSource, action } = props;
   const { Option } = Select;
-  const [messageApi, contextHolder] = message.useMessage();
+  const [messageApi] = message.useMessage();
   const [editor, setEditor]: [any, any] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isBrowser, setIsBrowser] = useState(false);
@@ -73,6 +74,13 @@ const FormModal = (props: any): any => {
 
   // 及时销毁 editor ，重要！
   useEffect(() => {
+    // if (editor) {
+    //   const { DomEditor } = require("@wangeditor/editor");
+    //   const toolbar = DomEditor?.getToolbar(editor);
+
+    //   const curToolbarConfig = toolbar?.getConfig();
+    //   console.log(curToolbarConfig?.toolbarKeys);
+    // }
     return () => {
       if (editor == null) return;
       editor.destroy();
@@ -81,11 +89,18 @@ const FormModal = (props: any): any => {
   }, [editor]);
 
   // 工具栏配置
-  const toolbarConfig = {}; // TS 语法
+  const toolbarConfig = { excludeKeys: ["group-video"] }; // TS 语法
   // 编辑器配置
-  const editorConfig = {
+  const editorConfig: any = {
     // TS 语法
     placeholder: "请输入内容...",
+    MENU_CONF: {},
+  };
+
+  editorConfig.MENU_CONF["uploadImage"] = {
+    maxFileSize: 1 * 1024 * 1024, // 1M
+    base64LimitSize: 1 * 1024 * 1024, // 5kb
+    server: "/api/upload",
   };
   const confirmModal = () => {
     form.submit();
@@ -249,6 +264,7 @@ const FormModal = (props: any): any => {
               showUploadList={false}
               beforeUpload={beforeUpload}
               onChange={handleChange}
+              action={"/api/upload"}
             >
               {!!form.getFieldValue("pic") ? (
                 <img
@@ -271,6 +287,7 @@ const FormModal = (props: any): any => {
                   style={{ borderBottom: "1px solid #ccc" }}
                 />
                 <Editor
+                  metaWithUrl={false}
                   defaultConfig={editorConfig}
                   value={form.getFieldValue("htmlContent")}
                   onCreated={setEditor}

@@ -3,7 +3,7 @@ import MasterPage from "../../common/components/templates/masterpage";
 import Template from "../../common/components/templates/template";
 import Article from "../../common/containers/articles/index";
 
-@MasterPage(Template, {})
+@MasterPage(Template, { showLang: false })
 export default class Articles extends React.Component {
   render() {
     return (

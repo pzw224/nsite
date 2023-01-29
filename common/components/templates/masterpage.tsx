@@ -6,7 +6,7 @@ export function MasterPage(layout: any, props: any) {
       render() {
         return React.createElement(
           layout,
-          { props, ...this.props },
+          { ...props, ...this.props },
           React.createElement(Comp, this.props)
         );
       }

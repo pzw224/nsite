@@ -4,7 +4,7 @@ import { commonPath } from "../../../../interface";
 
 /* eslint-disable @next/next/no-html-link-for-pages */
 const Header = (props: any) => {
-  const { mastheadClass = "" } = props; //masthead--transparent
+  const { mastheadClass = "", showLang = true } = props; //masthead--transparent
   const [langs, setLang] = useState(false);
   const pageData = props?.pageData;
   const [menuStatus, setMenuStatus] = useState({ status: false, index: -1 });
@@ -113,6 +113,7 @@ const Header = (props: any) => {
           <ul
             id="menu-header-right"
             className="header-menu header-menu-secondary"
+            style={showLang ? { display: "inherit" } : { display: "none" }}
           >
             <li className="header-menu-item header-menu-item-10835 menu-item-depth--0 header-menu-item--has-children"></li>
             <li

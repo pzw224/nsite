@@ -1,7 +1,10 @@
 import { commonPath } from "../../interface";
+import { useRouter } from "next/router";
 
 const Footer = (props: any) => {
   let { pageData } = props;
+  const router = useRouter();
+  const { lang = "cn" } = router.query;
   let childMenu = pageData?.filter((c: any) => !c?.isTop);
   return (
     <footer id="colophon" className="site-footer">
@@ -12,7 +15,11 @@ const Footer = (props: any) => {
               {/* <img src="/assets/img/zh-hans-logo.286dc06b.jpg" className="attachment-full size-full" /> */}
             </div>
             <div className="footer-tagline">
-              <p>汇聚专业洞见 助力卓越决策</p>
+              <p>
+                {lang == "cn"
+                  ? "汇聚专业洞见 助力卓越决策"
+                  : "We bring the power of insight to every great professional decision."}
+              </p>
             </div>
           </div>
           <div className="footer-menu col-lg-6 col-md-8 offset-lg-1 col-sm-12">
@@ -40,31 +47,33 @@ const Footer = (props: any) => {
                 <ul className="footer-sub-menu">
                   <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-1 menu-item-has-children menu-item-h1">
                     <a href="/insights">
-                      <span>全部洞见</span>
+                      <span>{lang == "cn" ? "全部洞见" : "All"}</span>
                       <span className="menu-expand"></span>
                     </a>
                     <ul className="footer-sub-menu">
                       <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link">
                         <a href="/insights">
-                          <span>全部洞见</span>
+                          <span>{lang == "cn" ? "全部洞见" : "All"}</span>
                           <span className="menu-expand"></span>
                         </a>
                       </li>
                       <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link">
                         <a href="/articles/">
-                          <span>文章</span>
+                          <span>{lang == "cn" ? "文章" : "Ariticles"}</span>
                           <span className="menu-expand"></span>
                         </a>
                       </li>
                       <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link">
                         <a href="/case-studies">
-                          <span>案例研究</span>
+                          <span>
+                            {lang == "cn" ? "案例研究" : "Case Studies"}
+                          </span>
                           <span className="menu-expand"></span>
                         </a>
                       </li>
                       <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link">
                         <a href="/whitepapers">
-                          <span>白皮书</span>
+                          <span>{lang == "cn" ? "白皮书" : "White Paper"}</span>
                           <span className="menu-expand"></span>
                         </a>
                       </li>

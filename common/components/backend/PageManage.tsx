@@ -393,6 +393,7 @@ export default function PageManage() {
                   listType="picture-card"
                   className="avatar-uploader"
                   showUploadList={false}
+                  action={"/api/upload"}
                   beforeUpload={beforeUpload}
                   onChange={handleChange}
                 >

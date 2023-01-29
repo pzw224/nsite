@@ -18,7 +18,7 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
   const [initialData, setInitalData] = useState([] as any);
   const [total, setTotal] = useState(0);
   const router = useRouter();
-  const { lang, page = 1, size = 10 } = router.query;
+  const { lang = "cn", page = 1, size = 10 } = router.query;
   let typeN = "全部";
   switch (props.type) {
     case "articles":
@@ -63,7 +63,9 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
     <>
       <div>
         <div className="insights-archive-banner">
-          <h1 className="insights-archive-banner-title">专家洞见</h1>
+          <h1 className="insights-archive-banner-title">
+            {lang == "cn" ? "专家洞见" : "All Insights"}
+          </h1>
           {/* <p className="insights-archive-banner-subtitle">
             的专家团拥有约 100 万名成员，涵盖所有主要行业与地区的意见领袖。
             <br />
@@ -92,7 +94,9 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
               }}
               className="insight-type-select-display"
             >
-              {`按洞见类型 ${typeN}`}
+              {lang == "cn"
+                ? `按洞见类型 ${typeN}`
+                : `Insight Type： ${props.type ? props.type : "All"}`}
               <svg
                 aria-hidden="true"
                 focusable="false"
@@ -112,23 +116,23 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
             </a>
             <div className="insight-type-select-options">
               <a href="/insights/" className="insight-type-select-option">
-                全部
+                {lang == "cn" ? "全部洞见" : "All"}
               </a>
               <a href="/articles/" className="insight-type-select-option">
-                文章
+                {lang == "cn" ? "文章" : "Ariticles"}
               </a>
               <a href="/case-studies/" className="insight-type-select-option">
-                案例研究
+                {lang == "cn" ? "案例研究" : "Case Studies"}
               </a>
-              <a href="/videos/" className="insight-type-select-option">
+              {/* <a href="/videos/" className="insight-type-select-option">
                 视频
-              </a>
+              </a> */}
               <a href="/whitepapers/" className="insight-type-select-option">
-                白皮书
+                {lang == "cn" ? "白皮书" : "White Paper"}
               </a>
-              <a href="/podcasts/" className="insight-type-select-option">
+              {/* <a href="/podcasts/" className="insight-type-select-option">
                 播客
-              </a>
+              </a> */}
             </div>
           </div>
         </div>

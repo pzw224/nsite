@@ -18,7 +18,7 @@ const Template = (props: any) => {
   }, [lang]);
   return (
     <div>
-      <Header pageData={pageData} />
+      <Header pageData={pageData} showLang={props?.showLang} />
       <div className="site-content layout-full">
         <div className="page-container">{children}</div>
       </div>
