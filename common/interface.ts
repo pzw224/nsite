@@ -1,3 +1,5 @@
+import { getQuery } from "./until";
+
 enum modalType {
   add,
   edit,
@@ -5,6 +7,7 @@ enum modalType {
 
 function commonPath(data: any) {
   if (!data || !data?.path) return "";
+  const { lang } = getQuery();
   let path = "";
   switch (data?.path) {
     case "insights":
@@ -13,13 +16,18 @@ function commonPath(data: any) {
     case "podcasts":
     case "videos":
     case "whitepapers":
-      path = "/" + data?.path;
+      path = "/" + data?.path + (lang ? "?lang=" + lang : "");
       break;
     case "home":
-      path = "/";
+      path = "/" + (lang ? "?lang=" + lang : "");
       break;
     default:
-      path = "/menu/" + data?.path + "?id=" + data?._id;
+      path =
+        "/menu/" +
+        data?.path +
+        "?id=" +
+        data?._id +
+        (lang ? "&lang=" + lang : "");
       break;
   }
   return path;

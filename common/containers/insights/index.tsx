@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { getInitialData } from "../../../common/browserapi/insights";
 import { Pagination } from "antd";
+import { getQuery } from "../../until";
 
 interface IinitialData {
   _id: string;
@@ -17,8 +18,7 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
   const [pageIndex, SetPageIndex] = useState(1);
   const [initialData, setInitalData] = useState([] as any);
   const [total, setTotal] = useState(0);
-  const router = useRouter();
-  const { lang = "cn", page = 1, size = 10 } = router.query;
+  const [lang, setLang] = useState("cn");
   let typeN = "全部";
   switch (props.type) {
     case "articles":
@@ -43,10 +43,17 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
 
   useEffect(
     function () {
+      let queryObj = getQuery();
+      let { lang } = queryObj;
+      let tag = "cn";
+      if ((lang && lang == "cn") || lang == "en") {
+        setLang(lang);
+        tag = lang;
+      }
       let type = props.type ?? "";
       getInitialData(
         Object.assign(
-          { lang: lang ?? "cn", page: pageIndex, size: size },
+          { lang: tag, page: pageIndex, size: 10 },
           type ? { type } : {}
         )
       ).then((res) => {
@@ -56,7 +63,7 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
         }
       });
     },
-    [lang, pageIndex]
+    [pageIndex]
   );
 
   return (

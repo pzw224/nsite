@@ -14,12 +14,12 @@ export default function handler(
     : Number(req?.query?.size);
   MongoClient.connect(url, async function (err, db) {
     if (err) throw err;
-    const lang = req.query.lang ?? "cn";
+    const lang = req.query.lang ?? "";
     let dbo = db?.db("runoob")?.collection("page");
-    let totalCount = await dbo?.find({ lang: lang }).count();
+    let totalCount = await dbo?.find(lang ? { lang: lang } : {}).count();
     let type = req.query.type ?? "";
     dbo
-      ?.find(Object.assign({ lang: lang }, type ? { type } : {}))
+      ?.find(Object.assign(lang ? { lang: lang } : {}, type ? { type } : {}))
       .limit(pageSize)
       .skip((pageIndex - 1) * pageSize)
       .sort({ _id: -1 })

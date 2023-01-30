@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+
 import { useState, useEffect } from "react";
 import { commonPath } from "../../../../interface";
 
@@ -80,7 +80,7 @@ const Header = (props: any) => {
                                 ?.sort(
                                   (a: any, b: any) => b?.priority - a?.priority
                                 )
-                                .map((d: any, dindex: number) => {
+                                ?.map((d: any, dindex: number) => {
                                   return (
                                     <li
                                       key={`li${dindex}`}

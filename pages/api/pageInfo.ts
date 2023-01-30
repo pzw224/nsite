@@ -8,8 +8,10 @@ export default function handler(
 ) {
   MongoClient.connect(url, async function (err, db) {
     if (err) throw err;
+    const lang = req.query.lang ?? "";
     let dbo = db?.db("runoob")?.collection("page");
     var whereStr = Object.assign(
+      lang ? { lang: lang } : {},
       req.query["id"]
         ? { _id: new ObjectID(req.query["id"] as string) }
         : { path: "home" }

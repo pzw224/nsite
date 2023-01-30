@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
 import { getPageInfo } from "../../../common/browserapi/pageApi";
 import {
   BulbOutlined,
@@ -15,61 +14,67 @@ import {
 } from "@ant-design/icons";
 import { getInitialData } from "../../../common/browserapi/insights";
 import SwiperInsights from "../home/components/insights/swiperInsights";
+import { getQuery } from "../../until";
 
-const PageInfo: React.FC<any> = (props: any) => {
-  const router = useRouter();
-  const { id, lang = "cn" } = router.query;
+const PageInfo: React.FC<any> = ({}) => {
   const [pageData, setPageData] = useState<any>();
   useEffect(() => {
-    getPageInfo(Object.assign(id ? { id: id } : {}, { lang: lang })).then(
-      async (res) => {
-        if (res && res.data) {
-          let finalData = res?.data;
-          let finalModule = res?.data?.finalModule;
-          finalData.finalModule = finalModule?.map((f: any) => {
-            let newF = f;
-            res?.data?.moduleList?.forEach((m: any) => {
-              if (m?.value == f?.id) {
-                newF.sortby = m.sortby;
-              }
-            });
-            return newF;
+    let queryObj = getQuery();
+    let { id, lang } = queryObj;
+
+    getPageInfo(
+      Object.assign(id ? { id: id } : {}, { lang: lang ?? "cn" })
+    ).then(async (res) => {
+      if (res && res.data) {
+        let finalData = res?.data;
+        let finalModule = res?.data?.finalModule;
+        finalData.finalModule = finalModule?.map((f: any) => {
+          let newF = f;
+          res?.data?.moduleList?.forEach((m: any) => {
+            if (m?.value == f?.id) {
+              newF.sortby = m.sortby;
+            }
           });
-          if (finalModule?.findIndex((x: any) => x.type == "articles") >= 0) {
-            finalData.articles = await getInitialData({
-              lang: lang,
-              page: 1,
-              size: 3,
-              type: "articles",
-            });
-          }
-          if (
-            finalModule?.findIndex((x: any) => x.type == "case-studies") >= 0
-          ) {
-            finalData.caseStudies = await getInitialData({
-              lang: lang,
-              page: 1,
-              size: 3,
-              type: "case-studies",
-            });
-          }
-          finalData?.finalModule?.sort((a: any, b: any) => a.sortby - b.sortby);
-          setPageData(finalData);
+          return newF;
+        });
+        if (finalModule?.findIndex((x: any) => x.type == "articles") >= 0) {
+          finalData.articles = await getInitialData({
+            lang: lang ?? "cn",
+            page: 1,
+            size: 3,
+            type: "articles",
+          });
+        } else {
+          finalData.articles = null;
         }
+        if (finalModule?.findIndex((x: any) => x.type == "case-studies") >= 0) {
+          finalData.caseStudies = await getInitialData({
+            lang: lang ?? "cn",
+            page: 1,
+            size: 3,
+            type: "case-studies",
+          });
+        } else {
+          finalData.caseStudies = null;
+        }
+        finalData?.finalModule?.sort((a: any, b: any) => a.sortby - b.sortby);
+        setPageData(Object.assign({}, finalData));
       }
-    );
-  }, [id]);
+    });
+  }, []);
   return (
     <main className="site-main">
       <div className="page-content">
         <div className="glg-block glg-block-banner-hero-v2 scroll-transitions scroll-transitions--enabled scroll-transitions--active">
-          <img
-            title="banner"
-            width={1500}
-            height={807}
-            className="banner-hero-v2-image"
-            src={pageData?.background}
-          />
+          {pageData?.background ? (
+            <img
+              title="banner"
+              width={1500}
+              height={807}
+              className="banner-hero-v2-image"
+              src={pageData?.background}
+            />
+          ) : null}
           <div className="banner-hero-v2-content">
             <h1 className="banner-hero-v2-title">{pageData?.pageTitle}</h1>
             <p className="banner-hero-v2-subtitle">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
-  const [slidePage, setSlidePage] = useState(0);
+  const [slidePage, setSlidePage] = useState(1);
   const router = useRouter();
   const { lang = "cn" } = router.query;
   if (!data || data?.length <= 0) return null;
@@ -13,12 +13,13 @@ const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
           {data?.map((d: any, index: number) => {
             return (
               <img
-                key={d?._id}
+                key={"img" + d?._id}
                 width="1024"
                 height="1024"
                 src={d?.pic}
+                title={d?.title}
                 className={`case-studies-slider-image transition-in-left ${
-                  slidePage == index ? "active" : ""
+                  slidePage == index + 1 ? "active" : ""
                 }`}
               />
             );
@@ -29,13 +30,15 @@ const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
             {data?.map((d: any, index: number) => {
               return (
                 <div
-                key={index}
+                  key={"content" + d?._id}
                   className={`case-studies-slider-content-item ${
-                    slidePage == index ? "active" : ""
+                    slidePage == index + 1 ? "active" : ""
                   }`}
                 >
                   <h3 className="title">{d?.title}</h3>
-                  <p className="category">{d?.typeN}</p>
+                  <p className="category">
+                    {lang == "cn" ? d?.typeN : d?.type}
+                  </p>
                   <div className="description">
                     <p>{d?.description}</p>
                   </div>
@@ -59,7 +62,7 @@ const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
             <div className="case-studies-slider-controls">
               <button
                 onClick={() => {
-                  if (slidePage == 0) {
+                  if (slidePage == 1) {
                     setSlidePage(data?.length);
                     return;
                   }
@@ -70,7 +73,7 @@ const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
               <button
                 onClick={() => {
                   if (slidePage == data?.length) {
-                    setSlidePage(0);
+                    setSlidePage(1);
                     return;
                   }
                   setSlidePage(slidePage + 1);
@@ -78,7 +81,7 @@ const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
                 className="slider-button slider-button--next"
               ></button>
               <div className="slider-counter">
-                <span className="slider-counter-current">{slidePage + 1}</span>
+                <span className="slider-counter-current">{slidePage}</span>
                 <span className="slider-counter-divider"></span>
                 <span className="slider-counter-total">{data?.length}</span>
               </div>
