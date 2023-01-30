@@ -1,11 +1,18 @@
 import { commonPath } from "../../interface";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { getQuery } from "../../until";
 
 const Footer = (props: any) => {
   let { pageData } = props;
-  const router = useRouter();
-  const { lang = "cn" } = router.query;
+  let [language, setLang] = useState("cn");
   let childMenu = pageData?.filter((c: any) => !c?.isTop);
+
+  useEffect(() => {
+    let queryObj = getQuery();
+    let { lang = "cn" } = queryObj;
+    setLang(lang);
+  }, []);
   return (
     <footer id="colophon" className="site-footer">
       <div className="page-container">
@@ -16,7 +23,7 @@ const Footer = (props: any) => {
             </div>
             <div className="footer-tagline">
               <p>
-                {lang == "cn"
+                {language == "cn"
                   ? "汇聚专业洞见 助力卓越决策"
                   : "We bring the power of insight to every great professional decision."}
               </p>
@@ -46,34 +53,36 @@ const Footer = (props: any) => {
               <ul className="footer-menu-column">
                 <ul className="footer-sub-menu">
                   <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-1 menu-item-has-children menu-item-h1">
-                    <a href="/insights">
-                      <span>{lang == "cn" ? "全部洞见" : "All"}</span>
+                    <a href={`/insights?lang=${language}`}>
+                      <span>{language == "cn" ? "全部洞见" : "All"}</span>
                       <span className="menu-expand"></span>
                     </a>
                     <ul className="footer-sub-menu">
                       <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link">
-                        <a href="/insights">
-                          <span>{lang == "cn" ? "全部洞见" : "All"}</span>
+                        <a href={`/insights?lang=${language}`}>
+                          <span>{language == "cn" ? "全部洞见" : "All"}</span>
                           <span className="menu-expand"></span>
                         </a>
                       </li>
                       <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link">
-                        <a href="/articles/">
-                          <span>{lang == "cn" ? "文章" : "Ariticles"}</span>
+                        <a href={`/articles?lang=${language}`}>
+                          <span>{language == "cn" ? "文章" : "Ariticles"}</span>
                           <span className="menu-expand"></span>
                         </a>
                       </li>
                       <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link">
-                        <a href="/case-studies">
+                        <a href={`/case-studies?lang=${language}`}>
                           <span>
-                            {lang == "cn" ? "案例研究" : "Case Studies"}
+                            {language == "cn" ? "案例研究" : "Case Studies"}
                           </span>
                           <span className="menu-expand"></span>
                         </a>
                       </li>
                       <li className="menu-item menu-item-type-custom menu-item-object-custom menu-depth-2 menu-item-link">
-                        <a href="/whitepapers">
-                          <span>{lang == "cn" ? "白皮书" : "White Paper"}</span>
+                        <a href={`/whitepapers?lang=${language}`}>
+                          <span>
+                            {language == "cn" ? "白皮书" : "White Paper"}
+                          </span>
                           <span className="menu-expand"></span>
                         </a>
                       </li>
