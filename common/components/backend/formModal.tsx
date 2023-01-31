@@ -228,9 +228,9 @@ const FormModal = (props: any): any => {
             >
               <Option value="articles">文章</Option>
               <Option value="case-studies">案例研究</Option>
-              <Option value="videos">视频</Option>
+              {/* <Option value="videos">视频</Option> */}
               <Option value="whitepapers">白皮书</Option>
-              <Option value="podcasts">播客</Option>
+              {/* <Option value="podcasts">播客</Option> */}
             </Select>
           </Form.Item>
           <Form.Item
