@@ -248,6 +248,7 @@ const Header = (props: any) => {
                 type="button"
                 className="header-menu-link mobile-menu-toggle"
                 onClick={() => {
+                  setLang(false);
                   setMenuStatus({ status: !menuStatus?.status, index: -1 });
                 }}
               >
