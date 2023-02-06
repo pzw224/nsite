@@ -30,6 +30,8 @@ import {
   getInitialData,
   moduleDetail,
 } from "../../../common/browserapi/moduleApi";
+import { getInitialData as getInsightData } from "../../../common/browserapi/insights";
+import ModuleModal from "./moduleModal";
 
 export default function ModuleManage() {
   const [dataSource, setDataSource] = useState({ data: [], total: 0 } as any);
@@ -37,15 +39,37 @@ export default function ModuleManage() {
   const [messageApi, contextHolder] = message.useMessage();
   const [pageIndex, SetPageIndex] = useState(1);
   const [action, setAction] = useState(modalType.add);
-
+  const [insightsEnable, setInsightsEnable] = useState(true);
+  const [insightsList, setInsightList] = useState([]);
   const [form] = Form.useForm();
-
-  const { Option } = Select;
 
   const updateModal = (id: any) => {
     setAction(modalType.edit);
+    form.resetFields();
     moduleDetail(id).then((res) => {
       if (res) {
+        if (
+          res?.data?.type == "case-studies" ||
+          res?.data?.type == "articles"
+        ) {
+          setInsightsEnable(false);
+          getInsightData({
+            page: 1,
+            size: 30,
+            type: res?.data?.type,
+            lang: res?.data?.lang,
+          }).then((res) => {
+            if (res && res.data) {
+              setInsightList(
+                res.data.map((o: any) => {
+                  return { value: o._id, label: o.title };
+                })
+              );
+            }
+          });
+        } else {
+          setInsightsEnable(true);
+        }
         form.setFieldsValue(res?.data);
       }
       setOpen(true);
@@ -57,50 +81,6 @@ export default function ModuleManage() {
     setAction(modalType.add);
     form.resetFields();
     setOpen(true);
-  };
-
-  const confirmModal = () => {
-    form.submit();
-  };
-
-  const hideModal = () => {
-    setOpen(false);
-  };
-
-  const onFinish = (values: any) => {
-    let formData = form.getFieldsValue(true);
-    if (action == modalType.add) {
-      addModule(formData).then((res) => {
-        if (res) {
-          setDataSource({
-            data: [{ _id: res.insertedId, ...formData }, ...dataSource.data],
-            total: dataSource?.total + 1,
-          });
-        }
-      });
-    } else {
-      updateModule(formData).then((res) => {
-        if (res.data == "done") {
-          setDataSource({
-            data: dataSource?.data?.map((x: any) => {
-              if (x._id == formData?._id) {
-                return formData;
-              }
-              return x;
-            }),
-            total: dataSource.total,
-          });
-        }
-      });
-    }
-    setOpen(false);
-  };
-
-  const onFinishFailed = (errorInfo: any) => {
-    messageApi.open({
-      type: "error",
-      content: "提交失败",
-    });
   };
 
   useEffect(() => {
@@ -196,7 +176,21 @@ export default function ModuleManage() {
           <Button type="primary" onClick={showModal}>
             新增
           </Button>
-          <Modal
+          {open ? (
+            <ModuleModal
+              action={action}
+              form={form}
+              setOpen={setOpen}
+              open={open}
+              setDataSource={setDataSource}
+              dataSource={dataSource}
+              insightsEnable={insightsEnable}
+              setInsightsEnable={setInsightsEnable}
+              insightsList={insightsList}
+              setInsightList={setInsightList}
+            />
+          ) : null}
+          {/* <Modal
             title="新增模板"
             open={open}
             onOk={confirmModal}
@@ -263,7 +257,7 @@ export default function ModuleManage() {
                 <Input />
               </Form.Item>
             </Form>
-          </Modal>
+          </Modal> */}
         </Col>
       </Row>
       <Row>

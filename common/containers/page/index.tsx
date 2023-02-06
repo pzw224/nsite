@@ -37,26 +37,26 @@ const PageInfo: React.FC<any> = ({}) => {
           });
           return newF;
         });
-        if (finalModule?.findIndex((x: any) => x.type == "articles") >= 0) {
-          finalData.articles = await getInitialData({
-            lang: lang ?? "cn",
-            page: 1,
-            size: 3,
-            type: "articles",
-          });
-        } else {
-          finalData.articles = null;
-        }
-        if (finalModule?.findIndex((x: any) => x.type == "case-studies") >= 0) {
-          finalData.caseStudies = await getInitialData({
-            lang: lang ?? "cn",
-            page: 1,
-            size: 3,
-            type: "case-studies",
-          });
-        } else {
-          finalData.caseStudies = null;
-        }
+        // if (finalModule?.findIndex((x: any) => x.type == "articles") >= 0) {
+        //   finalData.articles = await getInitialData({
+        //     lang: lang ?? "cn",
+        //     page: 1,
+        //     size: 3,
+        //     type: "articles",
+        //   });
+        // } else {
+        //   finalData.articles = null;
+        // }
+        // if (finalModule?.findIndex((x: any) => x.type == "case-studies") >= 0) {
+        //   finalData.caseStudies = await getInitialData({
+        //     lang: lang ?? "cn",
+        //     page: 1,
+        //     size: 3,
+        //     type: "case-studies",
+        //   });
+        // } else {
+        //   finalData.caseStudies = null;
+        // }
         finalData?.finalModule?.sort((a: any, b: any) => a.sortby - b.sortby);
         setPageData(Object.assign({}, finalData));
       }
@@ -226,7 +226,8 @@ const PageInfo: React.FC<any> = ({}) => {
                 <SwiperInsights
                   key={module?._id}
                   title={module?.title}
-                  data={pageData?.articles?.data}
+                  insights={module?.insightsList}
+                  type={module?.type}
                 />
               );
               break;
@@ -235,7 +236,8 @@ const PageInfo: React.FC<any> = ({}) => {
                 <SwiperInsights
                   key={module?._id}
                   title={module?.title}
-                  data={pageData?.caseStudies?.data}
+                  insights={module?.insightsList}
+                  type={module?.type}
                 />
               );
               break;

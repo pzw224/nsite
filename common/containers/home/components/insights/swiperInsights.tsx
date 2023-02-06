@@ -1,10 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-const SwiperInsights = ({ data, title }: { data: any; title: string }) => {
+import { getInitialData } from "../../../../browserapi/insights";
+const SwiperInsights = ({
+  type,
+  insights,
+  title,
+}: {
+  type: string;
+  insights: any;
+  title: string;
+}) => {
   const [slidePage, setSlidePage] = useState(1);
   const router = useRouter();
   const { lang = "cn" } = router.query;
-  if (!data || data?.length <= 0) return null;
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    getInitialData({
+      lang: lang ?? "cn",
+      ids: insights?.map((i: any) => i.value)?.join(","),
+      page: 1,
+      size: 3,
+      type: type,
+    }).then((res) => {
+      setData(res?.data);
+    });
+  }, []);
+
+  if (!insights || insights?.length <= 0 || !data) return null;
   return (
     <div className="glg-block glg-block-case-studies-slider scroll-transitions align--left color--pearl logos--show scroll-transitions--enabled scroll-transitions--active">
       <h2>{title}</h2>

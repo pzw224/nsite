@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { getInitialData } from "../../../common/browserapi/insights";
-import { Pagination } from "antd";
-import { getQuery } from "../../until";
+import { Button, Pagination } from "antd";
+import { getQuery, getQueryString } from "../../until";
 
 interface IinitialData {
   _id: string;
@@ -19,6 +19,8 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
   const [initialData, setInitalData] = useState([] as any);
   const [total, setTotal] = useState(0);
   const [lang, setLang] = useState("cn");
+  const [q, setQ] = useState("");
+
   let typeN = "全部";
   switch (props.type) {
     case "articles":
@@ -41,10 +43,32 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
       break;
   }
 
+  function query() {
+    let queryObj = getQuery();
+    let { lang } = queryObj;
+    let tag = "cn";
+    if ((lang && lang == "cn") || lang == "en") {
+      setLang(lang);
+      tag = lang;
+    }
+    let type = props.type ?? "";
+    getInitialData(
+      Object.assign(
+        { lang: tag, page: 1, size: 10, q: q },
+        type ? { type } : {}
+      )
+    ).then((res) => {
+      if (res && res?.data) {
+        setInitalData(res?.data);
+        setTotal(res?.total);
+      }
+    });
+  }
+
   useEffect(
     function () {
       let queryObj = getQuery();
-      let { lang } = queryObj;
+      let { lang, q = "" } = queryObj;
       let tag = "cn";
       if ((lang && lang == "cn") || lang == "en") {
         setLang(lang);
@@ -53,7 +77,7 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
       let type = props.type ?? "";
       getInitialData(
         Object.assign(
-          { lang: tag, page: pageIndex, size: 10 },
+          { lang: tag, page: pageIndex, size: 10, q: q },
           type ? { type } : {}
         )
       ).then((res) => {
@@ -143,43 +167,73 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
             </div>
           </div>
         </div>
-        {/* <form role="search" method="get" className="filter-search">
-          <button
-            type="submit"
-            title="Search Insights"
-            className="filter-search-button"
+        <button
+          type="submit"
+          title="Search Insights"
+          className="filter-search-button"
+          onClick={() => {
+            let queryObj = getQuery();
+            window.location.href =
+              window.location.protocol +
+              "//" +
+              window.location.host +
+              window.location.pathname +
+              getQueryString(Object.assign(queryObj, { q: q }));
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            className="icon"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-              className="icon"
-            >
-              <path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
-            </svg>
-          </button>
-          <input
-            type="search"
-            placeholder="搜索"
-            name="s"
-            title="Search for:"
-            value=""
-            className="filter-search-input"
-          />
-          <a title="Clear Search Term" href="#" className="filter-search-clear">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 352 512"
-              className="icon"
-            >
-              <path d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path>
-            </svg>
-          </a>
-          <div className="filter-search-results">
-            <span className="filter-search-no-results">No Search Results</span>
-          </div>
-        </form> */}
+            <path d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+          </svg>
+        </button>
+        <input
+          type="text"
+          placeholder={lang == "cn" ? "搜索" : "Search"}
+          name="q"
+          title="Search for:"
+          value={q}
+          className="filter-search-input"
+          onKeyDown={(e) => {
+            let theEvent: any = window.event || e;
+            let code = theEvent.keyCode || theEvent.which || theEvent.charCode;
+            if (code == 13) {
+              let queryObj = getQuery();
+              window.location.href =
+                window.location.protocol +
+                "//" +
+                window.location.host +
+                window.location.pathname +
+                getQueryString(Object.assign(queryObj, { q: q }));
+            }
+          }}
+          onChange={(v) => setQ(v.target.value)}
+        />
+        <Button
+          onClick={() => {
+            let queryObj = getQuery();
+            let { q, ...other } = queryObj;
+            window.location.href =
+              window.location.protocol +
+              "//" +
+              window.location.host +
+              window.location.pathname +
+              getQueryString(other);
+          }}
+          style={{ marginTop: 10 }}
+          ghost
+        >
+          {lang == "cn" ? "重置" : "Reset"}
+        </Button>
       </div>
       <div className="post-archive-content">
+        {
+          <div className="search-status">
+            <p>{total} Results Found</p>
+          </div>
+        }
         <div className="post-archive-list">
           {initialData?.map((data: IinitialData, index: string) => {
             return (

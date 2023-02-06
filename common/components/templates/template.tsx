@@ -7,10 +7,14 @@ import Footer from "../footer";
 const Template = (props: any) => {
   const { children } = props;
   const [pageData, setPageData] = useState([]);
+  const [qu, setQu] = useState("");
 
   useEffect(() => {
     let queryObj = getQuery();
-    let { lang = "cn" } = queryObj;
+    let { lang = "cn", q } = queryObj;
+    if (q) {
+      setQu(q);
+    }
     getInitialPage({ lang: lang ?? "cn" }).then((res) => {
       if (res && res.data) {
         setPageData(res.data);
@@ -20,7 +24,11 @@ const Template = (props: any) => {
   return (
     <div>
       <Header pageData={pageData} showLang={props?.showLang} />
-      <div className="site-content layout-full">
+      <div
+        className={`site-content layout-full ${
+          qu ? "search-page has-results" : ""
+        }`}
+      >
         <div className="page-container">{children}</div>
       </div>
       <Footer pageData={pageData} />

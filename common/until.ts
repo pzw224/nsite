@@ -1,5 +1,6 @@
 function getQuery() {
-  let arr = window.location.href.split("?")?.[1]?.split("&");
+  if (!window) return null;
+  let arr = window?.location?.href?.split("?")?.[1]?.split("&");
   let obj: any = {};
   if (arr && arr?.length > 0) {
     for (let i of arr) {
@@ -7,6 +8,13 @@ function getQuery() {
     }
   }
   return obj;
+}
+function getQueryString(params: any) {
+  if (!params) return "";
+  let queryString = Object.keys(params)
+    .map((key) => key + "=" + params[key])
+    .join("&");
+  return "?" + queryString;
 }
 
 function isMobile(ua: any) {
@@ -26,4 +34,4 @@ function isMobile(ua: any) {
   );
 }
 
-export { getQuery, isMobile };
+export { getQuery, isMobile, getQueryString };
