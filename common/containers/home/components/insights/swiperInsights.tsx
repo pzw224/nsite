@@ -20,7 +20,7 @@ const SwiperInsights = ({
       lang: lang ?? "cn",
       ids: insights?.map((i: any) => i.value)?.join(","),
       page: 1,
-      size: 3,
+      // size: 3,
       type: type,
     }).then((res) => {
       setData(res?.data);

@@ -20,6 +20,7 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
   const [total, setTotal] = useState(0);
   const [lang, setLang] = useState("cn");
   const [q, setQ] = useState("");
+  const [qu, setQu] = useState("");
 
   let typeN = "全部";
   switch (props.type) {
@@ -43,27 +44,11 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
       break;
   }
 
-  function query() {
+  useEffect(() => {
     let queryObj = getQuery();
-    let { lang } = queryObj;
-    let tag = "cn";
-    if ((lang && lang == "cn") || lang == "en") {
-      setLang(lang);
-      tag = lang;
-    }
-    let type = props.type ?? "";
-    getInitialData(
-      Object.assign(
-        { lang: tag, page: 1, size: 10, q: q },
-        type ? { type } : {}
-      )
-    ).then((res) => {
-      if (res && res?.data) {
-        setInitalData(res?.data);
-        setTotal(res?.total);
-      }
-    });
-  }
+    let { q = "" } = queryObj;
+    setQu(q);
+  }, []);
 
   useEffect(
     function () {
@@ -229,11 +214,11 @@ const InsightsPage: React.FC<{ type?: string }> = (props: any) => {
         </Button>
       </div>
       <div className="post-archive-content">
-        {
+        {qu ? (
           <div className="search-status">
             <p>{total} Results Found</p>
           </div>
-        }
+        ) : null}
         <div className="post-archive-list">
           {initialData?.map((data: IinitialData, index: string) => {
             return (

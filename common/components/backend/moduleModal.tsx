@@ -19,6 +19,18 @@ import {
 } from "../../../common/browserapi/moduleApi";
 import { getInitialData } from "../../browserapi/insights";
 
+function debounce(fn: any, delay: number) {
+  var timer: any = null;
+  return function () {
+    var context: any = this;
+    var args = arguments;
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      fn.apply(context, args);
+    }, delay);
+  };
+}
+
 const ModuleModal = (props: any): any => {
   let {
     form,
@@ -162,10 +174,29 @@ const ModuleModal = (props: any): any => {
         </Form.Item>
         <Form.Item shouldUpdate name="insightsList" label="选择文章">
           <Select
+            showSearch
             disabled={insightsEnable}
             mode="multiple"
             labelInValue={true}
             options={insightsList}
+            filterOption={false}
+            onSearch={debounce((v: any) => {
+              getInitialData({
+                page: 1,
+                size: 30,
+                type: form.getFieldValue("type"),
+                lang: form.getFieldValue("lang"),
+                q: v,
+              }).then((res) => {
+                if (res && res.data) {
+                  setInsightList(
+                    res.data.map((o: any) => {
+                      return { value: o._id, label: o.title };
+                    })
+                  );
+                }
+              });
+            }, 500)}
           />
         </Form.Item>
         <Form.Item
