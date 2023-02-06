@@ -21,12 +21,11 @@ import { getInitialData } from "../../browserapi/insights";
 
 function debounce(fn: any, delay: number) {
   var timer: any = null;
-  return function () {
-    var context: any = this;
+  return function a() {
     var args = arguments;
     clearTimeout(timer);
     timer = setTimeout(function () {
-      fn.apply(context, args);
+      fn.apply(null, args);
     }, delay);
   };
 }
